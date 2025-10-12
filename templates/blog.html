@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blogs | Rishab</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/blog.css') }}">
+</head>
+<body>
+  <main>
+    <a href="{{ url_for('home') }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+
+    <header class="page-header">
+      <h1>Insights & Tutorials</h1>
+      <p>Dive into structured breakdowns of core concepts. Each post is available in multiple languages so you can learn in the voice that feels the most natural.</p>
+    </header>
+
+    {% if posts %}
+      <div class="blog-layout">
+        <div>
+          <div class="post-actions">
+            <button class="toggle-button" id="toggleList">
+              <i class="fas fa-list"></i>
+              Show Blog List
+            </button>
+            <div class="status-message" id="statusMessage"></div>
+          </div>
+
+          <aside class="post-list" id="postList">
+            <h2>Available Posts</h2>
+            {% for post in posts %}
+              <div class="post-item" data-filename="{{ post.filename }}">{{ post.title }}</div>
+            {% endfor %}
+          </aside>
+        </div>
+
+        <article class="viewer" id="blogViewer">
+          <h2>Select a post to read</h2>
+          <p>Choose any Markdown article from the list to view its content here.</p>
+        </article>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        No blogs published yet. Check back soon for fresh content!
+      </div>
+    {% endif %}
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleListBtn = document.getElementById('toggleList');
+      const postList = document.getElementById('postList');
+      const postItems = document.querySelectorAll('.post-item');
+      const viewer = document.getElementById('blogViewer');
+      const statusMessage = document.getElementById('statusMessage');
+
+      function setStatus(message, show = true) {
+        if (!statusMessage) return;
+        statusMessage.textContent = message;
+        statusMessage.classList.toggle('visible', show);
+      }
+
+      if (toggleListBtn && postList) {
+        toggleListBtn.addEventListener('click', () => {
+          const isActive = postList.classList.toggle('active');
+          toggleListBtn.classList.toggle('secondary', isActive);
+          toggleListBtn.innerHTML = isActive
+            ? '<i class="fas fa-eye-slash"></i> Hide Blog List'
+            : '<i class="fas fa-list"></i> Show Blog List';
+        });
+      }
+
+      function loadPost(filename, element) {
+        if (!viewer) {
+          return;
+        }
+
+        setStatus(`Loading ${filename} ...`);
+
+        fetch(`/api/blogs/${encodeURIComponent(filename)}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Failed to fetch blog (${response.status})`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (!data.success) {
+              throw new Error('Blog response did not succeed.');
+            }
+            viewer.innerHTML = `<h1>${data.title}</h1>${data.html}`;
+
+            postItems.forEach(item => item.classList.remove('active'));
+            if (element) {
+              element.classList.add('active');
+            }
+
+            setStatus('Loaded successfully.', true);
+            setTimeout(() => setStatus('', false), 2000);
+          })
+          .catch(error => {
+            console.error(error);
+            setStatus('Error loading blog. Please try again.', true);
+          });
+      }
+
+      postItems.forEach(item => {
+        item.addEventListener('click', () => {
+          const filename = item.getAttribute('data-filename');
+          if (filename) {
+            loadPost(filename, item);
+          }
+        });
+      });
+
+      if (postItems.length === 1) {
+        postList.classList.add('active');
+        toggleListBtn.classList.add('secondary');
+        toggleListBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Blog List';
+        loadPost(postItems[0].getAttribute('data-filename'), postItems[0]);
+      }
+    });
+  </script>
+</body>
+</html>

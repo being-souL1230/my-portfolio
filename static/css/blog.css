@@ -1,0 +1,313 @@
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f9fafb;
+  color: #111827;
+  margin: 0;
+  line-height: 1.7;
+}
+
+a {
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+main {
+  padding: 32px 18px 64px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  font-size: 2.4rem;
+  margin-bottom: 0.75rem;
+  color: #0f172a;
+}
+
+.page-header p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 1.05rem;
+}
+
+.blog-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 300px) 1fr;
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.post-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.toggle-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #1d4ed8;
+  background: #1d4ed8;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  transition: background 0.2s ease, color 0.2s ease, border 0.2s ease;
+}
+
+.toggle-button.secondary {
+  background: #ffffff;
+  color: #1d4ed8;
+}
+
+.post-list {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  max-height: 480px;
+  overflow-y: auto;
+  display: none;
+}
+
+.post-list.active {
+  display: block;
+}
+
+.post-list h2 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  color: #0f172a;
+}
+
+.post-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  color: #1f2937;
+  font-size: 0.98rem;
+}
+
+.post-item:hover,
+.post-item.active {
+  background: #e0f2fe;
+  color: #0c4a6e;
+}
+
+.viewer {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  min-height: 420px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  overflow-wrap: anywhere;
+}
+
+.viewer h1,
+.viewer h2,
+.viewer h3 {
+  color: #0f172a;
+}
+
+.viewer h1 {
+  margin-top: 0;
+}
+
+.viewer pre {
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 14px;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.95rem;
+}
+
+.viewer code {
+  font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+}
+
+.viewer blockquote {
+  border-left: 4px solid #1d4ed8;
+  background: #eff6ff;
+  padding: 10px 16px;
+  color: #1e3a8a;
+}
+
+.viewer ul {
+  padding-left: 20px;
+}
+
+.viewer ul li {
+  margin-bottom: 6px;
+}
+
+.empty-state {
+  margin-top: 40px;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.status-message {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #1f2937;
+  display: none;
+}
+
+.status-message.visible {
+  display: block;
+}
+
+@media (max-width: 900px) {
+  main {
+    padding: 28px 18px 48px;
+  }
+
+  .blog-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .post-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .toggle-button {
+    width: auto;
+  }
+
+  .post-list {
+    max-height: none;
+  }
+}
+
+@media (max-width: 700px) {
+  main {
+    padding: 24px 16px 44px;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .page-header p {
+    font-size: 0.98rem;
+  }
+
+  .viewer {
+    padding: 20px;
+  }
+
+  .post-actions {
+    width: 100%;
+  }
+
+  .toggle-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .status-message {
+    text-align: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 540px) {
+  main {
+    padding: 22px 14px 40px;
+  }
+
+  .page-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .page-header p {
+    font-size: 0.94rem;
+  }
+
+  .post-actions {
+    gap: 10px;
+  }
+
+  .toggle-button {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+  }
+
+  .post-list {
+    padding: 12px;
+  }
+
+  .post-item {
+    padding: 9px 10px;
+    font-size: 0.94rem;
+  }
+
+  .viewer {
+    padding: 18px 16px;
+  }
+
+  .viewer pre {
+    font-size: 0.88rem;
+    padding: 12px;
+  }
+
+  .viewer blockquote {
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  main {
+    padding: 20px 12px 36px;
+  }
+
+  .page-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .toggle-button {
+    font-size: 0.9rem;
+  }
+
+  .viewer {
+    padding: 16px 14px;
+  }
+
+  .viewer h1 {
+    font-size: 1.4rem;
+  }
+
+  .viewer h2 {
+    font-size: 1.2rem;
+  }
+
+  .viewer h3 {
+    font-size: 1.05rem;
+  }
+
+  .viewer pre {
+    font-size: 0.82rem;
+  }
+}

@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mood Detector - Sentiment Analysis Demo</title>
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="/static/css/master.css">
+  <script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+  <style>
+    /* Premium CSS Variables */
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #1e40af;
+      --primary-light: #60a5fa;
+      --primary-glow: #93c5fd;
+      --dark: #0f172a;
+      --darker: #020617;
+      --darkest: #000000;
+      --light: #f8fafc;
+      --gray: #94a3b8;
+      --gray-dark: #475569;
+      --gray-light: #cbd5e1;
+      --card-bg: rgba(15, 23, 42, 0.6);
+      --card-border: rgba(148, 163, 184, 0.15);
+      --card-highlight: rgba(59, 130, 246, 0.12);
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.3);
+      --shadow-medium: 0 12px 40px rgba(0, 0, 0, 0.4);
+      --shadow-strong: 0 20px 60px rgba(0, 0, 0, 0.5);
+      --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #1e40af 50%, #1e3a8a 100%);
+      --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+      --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+      --gradient-glow: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(147, 197, 253, 0.1) 100%);
+      --positive: #10b981;
+      --negative: #ef4444;
+      --neutral: #f59e0b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(147, 197, 253, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(30, 64, 175, 0.08) 0%, transparent 50%),
+        linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+      color: var(--light);
+      line-height: 1.6;
+      font-size: 16px;
+      overflow-x: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px 8px 8px 8px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .header {
+      text-align: center;
+      margin-top: -20px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .header-buttons {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: flex;
+      gap: 8px;
+    }
+    
+    .header-btn {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(30, 41, 59, 0.2) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: var(--primary-light);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.7em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .header-btn:hover {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(30, 41, 59, 0.3) 100%);
+      border-color: var(--primary-light);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    
+    /* Info Dialog Styles */
+    .info-dialog {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(15,23,42,0.8);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+    
+    .info-dialog.active {
+      display: flex;
+      animation: fadeInDialog 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    
+    @keyframes fadeInDialog {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .info-dialog-content {
+      background: linear-gradient(135deg, rgba(30,41,59,0.98) 0%, rgba(59,130,246,0.1) 100%);
+      border-radius: 10px;
+      box-shadow: 0 12px 50px rgba(30,41,59,0.3), 0 4px 20px rgba(59,130,246,0.15);
+      border: 1.5px solid var(--glass-border);
+      padding: 20px;
+      max-width: 1200px;
+      width: 90vw;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+      opacity: 0;
+      transform: scale(0.95);
+      animation: scaleInDialog 0.4s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+    
+    @keyframes scaleInDialog {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    .info-dialog-header {
+      background: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(30,41,59,0.2) 100%);
+      padding: 20px 25px 15px 25px;
+      border-bottom: 1px solid var(--glass-border);
+      border-radius: 20px 20px 0 0;
+    }
+    
+    .info-dialog-title {
+      font-size: 1.4em;
+      font-weight: 700;
+      color: var(--light);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .info-dialog-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: var(--gray);
+      font-size: 1.3em;
+      cursor: pointer;
+      transition: color 0.2s ease;
+      padding: 5px;
+      border-radius: 6px;
+    }
+    
+    .info-dialog-close:hover {
+      color: var(--primary-light);
+      background: rgba(59, 130, 246, 0.1);
+    }
+    
+    .info-dialog-body {
+      padding: 25px;
+      color: var(--gray-light);
+      line-height: 1.6;
+    }
+    
+    .info-section {
+      margin-bottom: 25px;
+    }
+    
+    .info-section h3 {
+      color: var(--primary-light);
+      font-size: 1.1em;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .info-section p {
+      margin-bottom: 12px;
+      font-size: 0.9em;
+    }
+    
+    .info-section ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    
+    .info-section li {
+      margin-bottom: 6px;
+      font-size: 0.9em;
+    }
+    
+    .code-block {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.75em;
+      color: #e2e8f0;
+      overflow-x: auto;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .code-block::before {
+      content: 'Python';
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--primary-light);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.65em;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    /* Syntax Highlighting */
+    .code-keyword { color: #ff6b6b; font-weight: 600; }
+    .code-string { color: #51cf66; }
+    .code-comment { color: #868e96; font-style: italic; }
+    .code-function { color: #74c0fc; font-weight: 600; }
+    .code-number { color: #ffd43b; }
+    .code-operator { color: #e599f7; }
+    .code-class { color: #ffa8a8; font-weight: 600; }
+    
+    /* Custom Scrollbars */
+    .info-dialog-content::-webkit-scrollbar,
+    .code-block::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .info-dialog-content::-webkit-scrollbar-track,
+    .code-block::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .info-dialog-content::-webkit-scrollbar-thumb,
+    .code-block::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border: none;
+    }
+    
+    .info-dialog-content::-webkit-scrollbar-thumb:hover,
+    .code-block::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-light);
+    }
+    
+    /* Hide scrollbar buttons/arrows */
+    .info-dialog-content::-webkit-scrollbar-button,
+    .code-block::-webkit-scrollbar-button,
+    .info-dialog-content::-webkit-scrollbar-button:single-button,
+    .info-dialog-content::-webkit-scrollbar-button:double-button {
+      display: none;
+    }
+    
+    /* Firefox Scrollbars */
+    .info-dialog-content,
+    .code-block {
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+    
+    /* Monaco Editor Styles */
+    .monaco-editor-container {
+      background: #1e1e1e;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 15px 0;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    
+    .monaco-editor {
+      height: 300px;
+      width: 100%;
+    }
+    
+    .editor-header {
+      background: linear-gradient(135deg, #2d2d30 0%, #1e1e1e 100%);
+      padding: 12px 20px;
+      border-bottom: 1px solid #3c3c3c;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'Inter', sans-serif;
+      border-radius: 8px 8px 0 0;
+    }
+    
+    .editor-title {
+      color: #cccccc;
+      font-size: 0.85em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .editor-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .editor-btn {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: var(--primary-light);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.7em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .editor-btn:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: var(--primary-light);
+    }
+    
+    .output-panel {
+      background: #1e1e1e;
+      border-top: 1px solid #3c3c3c;
+      padding: 15px 20px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.8em;
+      color: #cccccc;
+      border-radius: 0 0 8px 8px;
+    }
+    
+    .output-line {
+      margin: 2px 0;
+      line-height: 1.4;
+    }
+    
+    .output-success { color: #4ec9b0; }
+    .output-info { color: #9cdcfe; }
+    .output-warning { color: #dcdcaa; }
+    .output-error { color: #f44747; }
+    
+    .highlight {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--primary-light);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    
+    .example-text {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 6px;
+      padding: 10px;
+      margin: 10px 0;
+      font-style: italic;
+      color: var(--positive);
+    }
+
+    .header h1 {
+      font-size: 2.1em;
+      font-weight: 800;
+      margin-bottom: 7px;
+      background: linear-gradient(135deg, var(--light) 0%, var(--primary-light) 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header p {
+      font-size: 1em;
+      color: var(--gray-light);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .dashboard-section {
+      display: flex;
+      flex-direction: row;
+      gap: 24px;
+      margin-bottom: 0;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .input-section, .dashboard-panel {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: none;
+      width: 50%;
+      box-sizing: border-box;
+      background: var(--gradient-glass);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-radius: 20px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--glass-border);
+      padding: 24px 20px;
+      transition: all 0.3s ease;
+    }
+
+    .input-section:hover, .dashboard-panel:hover {
+      box-shadow: var(--shadow-medium);
+      border-color: var(--primary-light);
+    }
+
+    .input-section, .result-section {
+      background: var(--gradient-glass);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-radius: 20px;
+      padding: 30px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .input-section h2, .result-section h2 {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      color: var(--light);
+      font-weight: 700;
+    }
+
+    .text-input {
+      height: 140px;
+      min-height: 0;
+      max-height: none;
+      max-width: 100%;
+      width: 100%;
+      overflow: hidden;
+      padding: 20px;
+      border: 2px solid var(--glass-border);
+      border-radius: 12px;
+      background: rgba(59, 130, 246, 0.05);
+      color: var(--light);
+      font-size: 1em;
+      resize: vertical;
+      transition: all 0.3s ease;
+    }
+
+    .text-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .analyze-btn {
+      background: var(--gradient-primary);
+      color: var(--light);
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .analyze-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+    }
+
+    .analyze-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(59, 130, 246, 0.1) 100%);
+      border-radius: 18px;
+      padding: 28px;
+      margin-bottom: 20px;
+      border: 1px solid var(--glass-border);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 50%, var(--primary) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .result-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15), 0 4px 20px rgba(0, 0, 0, 0.1);
+      border-color: var(--primary-light);
+    }
+
+    .result-card:hover::before {
+      opacity: 1;
+    }
+
+    .sentiment-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border-radius: 25px;
+      font-weight: 700;
+      font-size: 0.95em;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .sentiment-label::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .sentiment-label:hover::before {
+      left: 100%;
+    }
+
+    .sentiment-positive {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.25) 100%);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+    }
+
+    .sentiment-negative {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.25) 100%);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+    }
+
+    .sentiment-neutral {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.25) 100%);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+    }
+
+    .confidence-bar {
+      width: 100%;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 15px 0;
+      position: relative;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .confidence-fill {
+      height: 100%;
+      border-radius: 8px;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+    }
+
+    .confidence-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .confidence-fill.positive { 
+      background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    }
+    .confidence-fill.negative { 
+      background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+    }
+    .confidence-fill.neutral { 
+      background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+    }
+
+    .confidence-text {
+      font-size: 0.9em;
+      color: var(--gray-light);
+      margin-top: 8px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .confidence-text::before {
+      content: '🎯';
+      font-size: 0.8em;
+    }
+
+    /* Advanced ML Metrics Styling */
+    .ml-metrics {
+      margin-top: 0;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(59, 130, 246, 0.08) 100%);
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.12);
+      position: relative;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .ml-metrics-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8em;
+      font-weight: 700;
+      color: var(--light);
+      margin-bottom: 12px;
+      letter-spacing: 0.02em;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .ml-metrics-divider {
+      height: 1px;
+      background: linear-gradient(90deg, var(--primary) 0%, transparent 100%);
+      border: none;
+      margin: 0 0 8px 0;
+      border-radius: 2px;
+      opacity: 0.18;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .metric-item {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.06) 0%, rgba(30, 41, 59, 0.12) 100%);
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      padding: 8px 4px;
+      text-align: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .metric-item:hover {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(30, 41, 59, 0.18) 100%);
+      border-color: var(--primary-light);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 12px rgba(59, 130, 246, 0.12);
+    }
+
+    .metric-item:hover::before {
+      left: 100%;
+    }
+    .metric-label {
+      font-size: 0.55em;
+      color: var(--gray);
+      margin-bottom: 3px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      line-height: 1.1;
+    }
+    .metric-value {
+      font-size: 0.75em;
+      color: var(--light);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    
+    .metric-icon {
+      font-size: 0.8em;
+      color: var(--primary-light);
+      margin-bottom: 2px;
+      opacity: 0.8;
+    }
+    .metric-value.positive { color: var(--positive); }
+    .metric-value.negative { color: var(--negative); }
+    .metric-value.neutral { color: var(--neutral); }
+    .ml-metrics-divider2 {
+      height: 1px;
+      background: linear-gradient(90deg, var(--primary-light) 0%, transparent 100%);
+      border: none;
+      margin: 8px 0 6px 0;
+      border-radius: 2px;
+      opacity: 0.12;
+    }
+    .sentiment-breakdown {
+      margin-top: 0;
+      padding: 0 2px;
+    }
+    .sentiment-breakdown h5 {
+      color: var(--light);
+      font-size: 0.8em;
+      margin-bottom: 6px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sentiment-bars {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+    .sentiment-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.03);
+      position: relative;
+      overflow: hidden;
+      flex: 1;
+      min-width: 80px;
+    }
+
+    .sentiment-bar:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .sentiment-label-small {
+      font-size: 0.65em;
+      color: var(--light);
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.2;
+    }
+    
+    /* Circular Progress Indicator */
+    .sentiment-circle-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    
+    .sentiment-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--primary) 0deg, var(--primary) 0deg, rgba(255, 255, 255, 0.1) 0deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .sentiment-circle::before {
+      content: '';
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.8);
+    }
+    
+    .sentiment-circle-value {
+      position: relative;
+      z-index: 2;
+      font-size: 0.65em;
+      font-weight: 700;
+      color: var(--light);
+    }
+    
+    .sentiment-circle.positive {
+      background: conic-gradient(from 0deg, #10b981 0deg, #10b981 0deg, rgba(255, 255, 255, 0.1) 0deg);
+    }
+    
+    .sentiment-circle.negative {
+      background: conic-gradient(from 0deg, #ef4444 0deg, #ef4444 0deg, rgba(255, 255, 255, 0.1) 0deg);
+    }
+    
+    .sentiment-circle.neutral {
+      background: conic-gradient(from 0deg, #f59e0b 0deg, #f59e0b 0deg, rgba(255, 255, 255, 0.1) 0deg);
+    }
+    .sentiment-percentage {
+      font-size: 0.6em;
+      color: var(--gray-light);
+      text-align: center;
+      font-weight: 600;
+    }
+    
+    /* Animated Dots for Visual Appeal */
+    .sentiment-dots {
+      display: flex;
+      gap: 3px;
+      justify-content: center;
+    }
+    
+    .sentiment-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--gray);
+      animation: pulse 2s infinite;
+    }
+    
+    .sentiment-dot.active {
+      background: var(--primary-light);
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+    .processing-info {
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(30, 41, 59, 0.15) 100%);
+      border-radius: 6px;
+      border: 1px solid rgba(59, 130, 246, 0.15);
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.08);
+    }
+    .processing-info p {
+      font-size: 0.6em;
+      color: var(--gray-light);
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Enhanced Result Card */
+    .result-card.enhanced {
+      padding: 25px;
+    }
+
+    .result-card.enhanced .sentiment-label {
+      margin-bottom: 20px;
+    }
+
+    /* Loading Animation Enhancement */
+    .loading.enhanced {
+      padding: 30px;
+    }
+
+    .loading.enhanced i {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+    }
+
+    .loading.enhanced p {
+      color: var(--gray-light);
+      font-size: 1.1em;
+    }
+
+    /* Example Buttons */
+    .example-btn {
+      background: var(--gradient-glass);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      color: var(--gray-light);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .example-btn:hover {
+      background: var(--gradient-glow);
+      color: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .features-section {
+      background: var(--gradient-glass);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-radius: 20px;
+      padding: 30px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .features-section h2 {
+      font-size: 1.8em;
+      margin-bottom: 25px;
+      color: var(--light);
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--gradient-dark);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid var(--glass-border);
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-soft);
+      border-color: var(--primary);
+    }
+
+    .feature-card i {
+      font-size: 2em;
+      color: var(--primary);
+      margin-bottom: 15px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      color: var(--light);
+      font-weight: 600;
+    }
+
+    .feature-card p {
+      color: var(--gray);
+      font-size: 0.9em;
+      line-height: 1.5;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: 30px;
+      left: 30px;
+      background: var(--gradient-glass);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      color: var(--light);
+      padding: 12px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .back-btn:hover {
+      background: var(--gradient-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .loading i {
+      font-size: 2em;
+      color: var(--primary);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .fade-in {
+      opacity: 1 !important;
+      transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .fade-out {
+      opacity: 0 !important;
+      transition: opacity 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* Modal Dialog Styles */
+    .result-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(15,23,42,0.45);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+    .result-modal.active {
+      display: flex;
+      animation: fadeInModal 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    @keyframes fadeInModal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .result-modal-content {
+      background: linear-gradient(135deg, rgba(30,41,59,0.98) 0%, rgba(59,130,246,0.13) 100%);
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(30,41,59,0.25), 0 2px 12px rgba(59,130,246,0.10);
+      border: 1.5px solid var(--glass-border);
+      padding: 18px 16px 14px 16px;
+      min-width: 0;
+      max-width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      opacity: 0;
+      transform: scale(0.96);
+      animation: scaleInModal 0.4s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+    @keyframes scaleInModal {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .result-modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: var(--gray);
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: color 0.2s ease;
+      z-index: 10;
+      padding: 0;
+      width: auto;
+      height: auto;
+    }
+    .result-modal-close:hover {
+      color: var(--primary-light);
+    }
+    @media (max-width: 700px) {
+      .result-modal-content {
+        padding: 18px 6px 14px 6px;
+        min-width: 0;
+        max-width: 98vw;
+      }
+    }
+    /* Dashboard Layout */
+    .dashboard-section {
+      display: flex;
+      flex-direction: row;
+      gap: 24px;
+      margin-bottom: 0;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      min-height: 200px;
+    }
+    
+    /* Ensure dashboard expands smoothly */
+    .dashboard-panel {
+      overflow: visible;
+      height: auto;
+      min-height: 200px;
+    }
+    
+    /* Smooth expansion for dashboard content */
+    #mlMetricsContainer {
+      transition: all 0.3s ease;
+      height: auto;
+      min-height: 200px;
+    }
+    .input-section {
+      max-width: 500px;
+      padding: 24px 20px;
+      overflow: visible !important;
+    }
+    .dashboard-panel {
+      flex: 1 1 0;
+      min-width: 250px;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      align-self: flex-start;
+      margin-top: 0;
+      transition: all 0.3s ease;
+    }
+    @media (max-width: 900px) {
+      .container {
+        max-width: 98vw;
+        padding: 8px 2vw 8px 2vw;
+      }
+      .dashboard-section {
+        flex-direction: column;
+        gap: 18px;
+        align-items: stretch;
+        min-height: auto;
+      }
+      .input-section, .dashboard-panel {
+        width: 100%;
+        max-width: 98vw;
+        min-width: 0;
+        padding: 18px 2vw 18px 2vw;
+        border-radius: 22px;
+        min-height: auto;
+      }
+      #mlMetricsContainer {
+        min-height: auto;
+      }
+      .header h1 {
+        font-size: 1.8em;
+      }
+      .header p {
+        font-size: 0.9em;
+      }
+      .header-buttons {
+        position: relative;
+        top: auto;
+        right: auto;
+        justify-content: center;
+        margin-top: 15px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .input-section, .dashboard-panel {
+        width: 100%;
+        max-width: 100vw;
+        min-width: 0;
+        padding: 10px 1vw 10px 1vw;
+        border-radius: 16px;
+        min-height: auto;
+      }
+      #mlMetricsContainer {
+        min-height: auto;
+      }
+      .header h1 {
+        font-size: 1.6em;
+      }
+      .header p {
+        font-size: 0.85em;
+      }
+      .header-buttons {
+        flex-direction: column;
+        gap: 6px;
+        align-items: center;
+      }
+      .header-btn {
+        font-size: 0.65em;
+        padding: 5px 10px;
+      }
+      .info-dialog-content {
+        width: 95vw;
+        padding: 15px;
+        margin: 10px;
+      }
+      .monaco-editor {
+        height: 250px;
+      }
+      .editor-header {
+        padding: 8px 12px;
+      }
+      .editor-title {
+        font-size: 0.75em;
+      }
+      .editor-btn {
+        font-size: 0.65em;
+        padding: 3px 6px;
+      }
+      .output-panel {
+        padding: 10px 15px;
+        font-size: 0.75em;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 5px 1vw 5px 1vw;
+      }
+      .header {
+        margin-top: -10px;
+        margin-bottom: 15px;
+      }
+      .header h1 {
+        font-size: 1.4em;
+        margin-bottom: 5px;
+      }
+      .header p {
+        font-size: 0.8em;
+      }
+      .input-section, .dashboard-panel {
+        padding: 15px 12px;
+        border-radius: 12px;
+      }
+      .input-section h2, .result-section h2 {
+        font-size: 1.4em;
+        margin-bottom: 15px;
+      }
+      .text-input {
+        height: 120px;
+        padding: 15px;
+        font-size: 0.9em;
+      }
+      .analyze-btn {
+        padding: 12px 25px;
+        font-size: 1em;
+      }
+      .example-btn {
+        font-size: 0.75em;
+        padding: 6px 12px;
+      }
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 4px;
+      }
+      .metric-item {
+        padding: 6px 3px;
+      }
+      .metric-label {
+        font-size: 0.5em;
+      }
+      .metric-value {
+        font-size: 0.7em;
+      }
+      .sentiment-bars {
+        gap: 8px;
+      }
+      .sentiment-circle {
+        width: 35px;
+        height: 35px;
+      }
+      .sentiment-circle-value {
+        font-size: 0.6em;
+      }
+      .sentiment-label-small {
+        font-size: 0.6em;
+      }
+    }
+    .input-section::-webkit-scrollbar {
+      width: 8px;
+    }
+    .input-section::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .input-section::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      border-radius: 8px;
+      border: none;
+    }
+    .input-section::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    }
+    /* Firefox */
+    .input-section {
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+
+    .code-info-icon {
+      color: #ef4444;
+      margin-left: 10px;
+      font-size: 1.1em;
+      cursor: pointer;
+      vertical-align: middle;
+      display: inline-block;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .code-info-icon:hover {
+      color: #b91c1c;
+    }
+    .code-info-tooltip {
+      display: none;
+      position: absolute;
+      z-index: 3000;
+      background: #1e293b;
+      color: #fff;
+      border: 1.5px solid #ef4444;
+      border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(239,68,68,0.18), 0 2px 8px rgba(0,0,0,0.18);
+      padding: 16px 18px 14px 18px;
+      min-width: 220px;
+      max-width: 320px;
+      font-size: 0.97em;
+      animation: fadeInDialog 0.3s;
+      /* Remove right/top/margin, let JS set position */
+    }
+    .code-info-tooltip-content {
+      padding-right: 0;
+    }
+    .code-info-tooltip-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 1.15em;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.18s, color 0.18s;
+      padding: 0;
+    }
+    .code-info-tooltip-close:hover {
+      background: rgba(239,68,68,0.13);
+      color: #fff;
+    }
+    @media (max-width: 700px) {
+      .monaco-editor-container, #monacoEditor, .output-panel {
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box;
+      }
+      .monaco-editor {
+        height: 200px !important;
+        min-width: 0 !important;
+      }
+      .editor-header, .editor-actions {
+        flex-wrap: wrap;
+        font-size: 0.95em;
+        padding: 8px 6px;
+      }
+      .output-panel {
+        font-size: 0.92em;
+        padding: 10px 6px;
+        word-break: break-word;
+      }
+      .code-info-tooltip {
+        max-width: 90vw;
+        min-width: 160px;
+        font-size: 0.92em;
+        left: 8px !important;
+        right: auto !important;
+      }
+    }
+    @media (max-width: 480px) {
+      .monaco-editor {
+        height: 120px !important;
+      }
+      .output-panel {
+        font-size: 0.85em;
+        padding: 7px 2px;
+      }
+      .code-info-tooltip {
+        max-width: 98vw;
+        font-size: 0.85em;
+        left: 4px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-buttons">
+        <button class="header-btn" onclick="showNLPInfo()">NLP</button>
+        <button class="header-btn" onclick="showRACInfo()">RAC</button>
+        <button class="header-btn" onclick="showPythonCode()">Python Code</button>
+      </div>
+      <h1>🧠 Sentiment Analysis</h1>
+      <p>Advanced machine learning model that analyzes text to predict sentiment using Natural Language Processing and Random Forest classification.</p>
+    </div>
+
+    <div class="dashboard-section">
+      <div class="input-section">
+        <h2>📝 Enter Your Text</h2>
+        <textarea 
+          class="text-input" 
+          id="textInput" 
+          placeholder="Type or paste your text here to analyze its sentiment...&#10;&#10;Examples:&#10;• 'I really love this product!'&#10;• 'This is the worst experience ever.'&#10;• 'The weather is okay today.'"
+        ></textarea>
+        <button class="analyze-btn" id="analyzeBtn">
+          <i class="fas fa-brain"></i>
+          Analyze Sentiment
+        </button>
+        <div style="margin-top: 20px;">
+          <p style="color: var(--gray); font-size: 0.9em; margin-bottom: 10px;">Quick Examples:</p>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="example-btn" onclick="loadExample('I absolutely love this amazing product! It exceeded all my expectations and made me so happy.')">
+              <i class="fas fa-smile" style="color: #10b981; margin-right: 6px;"></i>Positive
+            </button>
+            <button class="example-btn" onclick="loadExample('This is the worst experience ever. I hate everything about it and feel terrible.')">
+              <i class="fas fa-frown" style="color: #ef4444; margin-right: 6px;"></i>Negative
+            </button>
+            <button class="example-btn" onclick="loadExample('The weather is okay today. Nothing special happened.')">
+              <i class="fas fa-meh" style="color: #f59e0b; margin-right: 6px;"></i>Neutral
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="dashboard-panel">
+        <div id="mlMetricsContainer"></div>
+      </div>
+    </div>
+
+    <div id="resultModal" class="result-modal">
+      <div class="result-modal-content" id="resultModalContent">
+        <button class="result-modal-close" id="resultModalClose" title="Close"><i class="fas fa-times"></i></button>
+        <div id="modalResultContent"></div>
+      </div>
+    </div>
+
+    <!-- Info Dialog -->
+    <div id="infoDialog" class="info-dialog">
+      <div class="info-dialog-content" id="infoDialogContent">
+        <div class="info-dialog-header">
+          <h2 class="info-dialog-title" id="infoDialogTitle">
+            <i class="fas fa-info-circle"></i>
+            <span id="infoDialogTitleText">Information</span>
+          </h2>
+          <button class="info-dialog-close" id="infoDialogClose" title="Close">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="info-dialog-body" id="infoDialogBody">
+          <!-- Content will be dynamically loaded -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  {% raw %}
+  <script>
+    // Performance optimization: Use requestIdleCallback for non-critical operations
+    const requestIdleCallback = window.requestIdleCallback || function(cb) {
+      return setTimeout(cb, 1);
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const textInput = document.getElementById('textInput');
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      const resultModal = document.getElementById('resultModal');
+      const resultModalContent = document.getElementById('resultModalContent');
+      const modalResultContent = document.getElementById('modalResultContent');
+      const resultModalClose = document.getElementById('resultModalClose');
+      const mlMetricsContainer = document.getElementById('mlMetricsContainer');
+
+      // Show dashboard placeholder initially
+      function showDashboardPlaceholder() {
+        mlMetricsContainer.innerHTML = `<div class="dashboard-placeholder" style="text-align: center; padding: 20px; color: var(--gray);">
+          <i class='fas fa-chart-bar' style='font-size:1.5em; margin-bottom:8px; display:block;'></i>
+          <div style='font-size:0.9em; font-weight:500; margin-bottom:4px;'>Sentiment Dashboard</div>
+          <div style='font-size:0.75em;'>Results will appear here after analysis</div>
+        </div>`;
+      }
+      showDashboardPlaceholder();
+
+      analyzeBtn.addEventListener('click', async function() {
+        const text = textInput.value.trim();
+        
+        if (!text) {
+          alert('Please enter some text to analyze!');
+          return;
+        }
+
+        // Show loading in modal
+        modalResultContent.innerHTML = `<div class='loading enhanced fade-in' style='display:block;'>
+          <i class='fas fa-brain'></i>
+          <p>Processing with Advanced ML Model...</p>
+          <p style='font-size: 0.9em; margin-top: 10px; color: var(--gray);'>Using TF-IDF vectorization and Random Forest classification</p>
+        </div>`;
+        resultModal.classList.add('active');
+        analyzeBtn.disabled = true;
+        analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+
+        const minDelay = 500; // ms
+        const startTime = Date.now();
+        let resultData = null;
+        let errorData = null;
+
+        try {
+          const response = await fetch('/api/mood-analysis', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ text: text })
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            resultData = result;
+          } else {
+            errorData = result.message;
+          }
+        } catch (error) {
+          errorData = 'Network error. Please try again.';
+        }
+        // Wait for minimum delay
+        const elapsed = Date.now() - startTime;
+        if (elapsed < minDelay) {
+          await new Promise(res => setTimeout(res, minDelay - elapsed));
+        }
+        // Fade out loading, fade in result
+        modalResultContent.classList.remove('fade-in');
+        modalResultContent.classList.add('fade-out');
+        setTimeout(() => {
+          if (resultData) {
+            displayResult(resultData, true);
+          } else {
+            displayError(errorData, true);
+          }
+          modalResultContent.classList.remove('fade-out');
+          modalResultContent.classList.add('fade-in');
+          setTimeout(() => {
+            modalResultContent.classList.remove('fade-in');
+          }, 500);
+        }, 300);
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = '<i class=\"fas fa-brain\"></i> Analyze Sentiment';
+      });
+
+      function displayResult(result, isModal) {
+        const sentimentClass = result.mood.toLowerCase();
+        const confidenceColor = sentimentClass;
+        
+        // Create ML metrics section
+        const mlMetrics = result.ml_metrics || {};
+        const details = result.details || {};
+        
+        const metricsHTML = `
+          <div class="ml-metrics">
+            <div class="ml-metrics-header">
+              <i class="fas fa-brain" style="color: var(--primary-light);"></i> 
+              Advanced ML Analysis
+            </div>
+            <hr class="ml-metrics-divider" />
+            <div class="metrics-grid">
+              <div class="metric-item">
+                <div class="metric-icon"><i class="fas fa-file-text"></i></div>
+                <div class="metric-label">Text Length</div>
+                <div class="metric-value">${mlMetrics.text_length || 0}</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-icon"><i class="fas fa-font"></i></div>
+                <div class="metric-label">Processed Words</div>
+                <div class="metric-value">${mlMetrics.cleaned_length || 0}</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-icon"><i class="fas fa-bolt"></i></div>
+                <div class="metric-label">Emotional Intensity</div>
+                <div class="metric-value">${(mlMetrics.emotional_intensity * 100).toFixed(1)}%</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-icon"><i class="fas fa-robot"></i></div>
+                <div class="metric-label">AI Model</div>
+                <div class="metric-value" style="font-size: 0.75em;">TF-IDF + RF</div>
+              </div>
+            </div>
+            <hr class="ml-metrics-divider2" />
+            <div class="sentiment-breakdown">
+              <h5>
+                <i class="fas fa-chart-pie" style="color: var(--primary-light); margin-right: 6px;"></i> 
+                Sentiment Distribution
+              </h5>
+              <div class="sentiment-bars">
+                <div class="sentiment-bar">
+                  <span class="sentiment-label-small"><i class="fas fa-smile" style="color: #10b981; margin-right: 4px;"></i>Positive</span>
+                  <div class="sentiment-circle-container">
+                    <div class="sentiment-circle positive" id="positiveCircle">
+                      <div class="sentiment-circle-value">${details.positive_score || 0}%</div>
+                  </div>
+                  </div>
+                </div>
+                <div class="sentiment-bar">
+                  <span class="sentiment-label-small"><i class="fas fa-frown" style="color: #ef4444; margin-right: 4px;"></i>Negative</span>
+                  <div class="sentiment-circle-container">
+                    <div class="sentiment-circle negative" id="negativeCircle">
+                      <div class="sentiment-circle-value">${details.negative_score || 0}%</div>
+                  </div>
+                  </div>
+                </div>
+                <div class="sentiment-bar">
+                  <span class="sentiment-label-small"><i class="fas fa-meh" style="color: #f59e0b; margin-right: 4px;"></i>Neutral</span>
+                  <div class="sentiment-circle-container">
+                    <div class="sentiment-circle neutral" id="neutralCircle">
+                      <div class="sentiment-circle-value">${details.neutral_score || 0}%</div>
+                  </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="processing-info">
+              <p><i class="fas fa-cogs"></i> ${mlMetrics.processing_method || 'Advanced NLP Processing'}</p>
+            </div>
+          </div>
+        `;
+        if (isModal) {
+          modalResultContent.innerHTML = `
+            <div class="result-card enhanced">
+              <div class="sentiment-label sentiment-${sentimentClass}">
+                <i class="fas fa-${getSentimentIcon(result.mood)}"></i>
+                ${result.mood} Sentiment
+              </div>
+              <div class="confidence-bar">
+                <div class="confidence-fill ${confidenceColor}" style="width: ${result.confidence}%"></div>
+              </div>
+              <div class="confidence-text">Confidence: ${result.confidence}%</div>
+              <p style="margin-top: 15px; color: var(--gray-light);">${result.analysis}</p>
+            </div>
+          `;
+          mlMetricsContainer.innerHTML = metricsHTML;
+          
+                  // Animate circular progress with performance optimization
+        requestIdleCallback(() => {
+          animateCircularProgress();
+        });
+        }
+      }
+
+      function displayError(message, isModal) {
+        if (isModal) {
+          modalResultContent.innerHTML = `
+            <div class="result-card">
+              <div class="sentiment-label sentiment-neutral">
+                <i class="fas fa-exclamation-triangle"></i>
+                Error
+              </div>
+              <p style="color: var(--negative);">${message}</p>
+            </div>
+          `;
+          showDashboardPlaceholder();
+        }
+      }
+
+      function getSentimentIcon(mood) {
+        switch(mood.toLowerCase()) {
+          case 'positive': return 'smile';
+          case 'negative': return 'frown';
+          case 'neutral': return 'meh';
+          default: return 'question';
+        }
+      }
+
+      // Enter key to analyze
+      textInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.ctrlKey) {
+          analyzeBtn.click();
+        }
+      });
+
+      // Load example text
+      window.loadExample = function(text) {
+        textInput.value = text;
+        textInput.focus();
+      };
+
+      // Animate circular progress function
+      function animateCircularProgress() {
+        const positiveCircle = document.getElementById('positiveCircle');
+        const negativeCircle = document.getElementById('negativeCircle');
+        const neutralCircle = document.getElementById('neutralCircle');
+        
+        if (positiveCircle) {
+          const positiveScore = parseInt(positiveCircle.querySelector('.sentiment-circle-value').textContent);
+          const positiveDegrees = (positiveScore / 100) * 360;
+          positiveCircle.style.background = `conic-gradient(from 0deg, #10b981 0deg, #10b981 ${positiveDegrees}deg, rgba(255, 255, 255, 0.1) ${positiveDegrees}deg)`;
+        }
+        
+        if (negativeCircle) {
+          const negativeScore = parseInt(negativeCircle.querySelector('.sentiment-circle-value').textContent);
+          const negativeDegrees = (negativeScore / 100) * 360;
+          negativeCircle.style.background = `conic-gradient(from 0deg, #ef4444 0deg, #ef4444 ${negativeDegrees}deg, rgba(255, 255, 255, 0.1) ${negativeDegrees}deg)`;
+        }
+        
+        if (neutralCircle) {
+          const neutralScore = parseInt(neutralCircle.querySelector('.sentiment-circle-value').textContent);
+          const neutralDegrees = (neutralScore / 100) * 360;
+          neutralCircle.style.background = `conic-gradient(from 0deg, #f59e0b 0deg, #f59e0b ${neutralDegrees}deg, rgba(255, 255, 255, 0.1) ${neutralDegrees}deg)`;
+        }
+      }
+
+      // Info Dialog Elements
+      const infoDialog = document.getElementById('infoDialog');
+      const infoDialogClose = document.getElementById('infoDialogClose');
+      const infoDialogTitleText = document.getElementById('infoDialogTitleText');
+      const infoDialogBody = document.getElementById('infoDialogBody');
+
+      // Info Dialog Functions
+      function showInfoDialog(title, content) {
+        infoDialogTitleText.textContent = title;
+        infoDialogBody.innerHTML = content;
+        infoDialog.classList.add('active');
+      }
+
+      function closeInfoDialog() {
+        infoDialog.classList.remove('active');
+      }
+
+      // NLP Information
+      window.showNLPInfo = function() {
+        const nlpContent = `
+          <div class="info-section">
+            <h3><i class="fas fa-brain"></i> Natural Language Processing (NLP)</h3>
+            <p>NLP is a branch of artificial intelligence that helps computers understand, interpret, and manipulate human language. In our sentiment analysis project, we use several NLP techniques:</p>
+            
+            <h3><i class="fas fa-cogs"></i> Key NLP Techniques Used:</h3>
+            <ul>
+              <li><span class="highlight">Text Preprocessing:</span> Cleaning and normalizing text data</li>
+              <li><span class="highlight">Tokenization:</span> Breaking text into individual words/tokens</li>
+              <li><span class="highlight">Stop Word Removal:</span> Removing common words that don't add meaning</li>
+              <li><span class="highlight">Lemmatization:</span> Converting words to their base form</li>
+              <li><span class="highlight">TF-IDF Vectorization:</span> Converting text to numerical features</li>
+            </ul>
+
+            <h3><i class="fas fa-chart-line"></i> TF-IDF Vectorization:</h3>
+            <p>Term Frequency-Inverse Document Frequency (TF-IDF) is a statistical measure that evaluates how important a word is to a document in a collection of documents.</p>
+            
+            <div class="example-text">
+              <strong>Example:</strong> "I love this amazing product!"<br>
+              TF-IDF converts this to numerical features that the ML model can understand.
+            </div>
+
+            <h3><i class="fas fa-robot"></i> Machine Learning Integration:</h3>
+            <p>Our NLP pipeline works seamlessly with Random Forest classification to predict sentiment with high accuracy.</p>
+            
+            <h3><i class="fas fa-cogs"></i> ML Pipeline Components:</h3>
+            <ul>
+              <li><span class="highlight">TF-IDF Vectorizer:</span> Converts text to numerical features with max_features=1000</li>
+              <li><span class="highlight">Random Forest Classifier:</span> 100 estimators with random_state=42 for reproducibility</li>
+              <li><span class="highlight">Text Preprocessing:</span> Stop word removal, lemmatization, and n-gram features (1-2)</li>
+              <li><span class="highlight">Model Persistence:</span> Saves trained model using pickle for reuse</li>
+              <li><span class="highlight">Prediction Pipeline:</span> End-to-end sentiment analysis with confidence scores</li>
+            </ul>
+
+            <h3><i class="fas fa-chart-line"></i> Model Training Process:</h3>
+            <ul>
+              <li><span class="highlight">Feature Extraction:</span> TF-IDF transforms text into 1000-dimensional feature vectors</li>
+              <li><span class="highlight">Ensemble Learning:</span> Random Forest creates 100 decision trees for robust predictions</li>
+              <li><span class="highlight">Cross-validation:</span> Model validated on multiple text samples for reliability</li>
+              <li><span class="highlight">Probability Scores:</span> Provides confidence levels for each sentiment class</li>
+            </ul>
+
+            <h3><i class="fas fa-flask"></i> Flask Web Integration:</h3>
+            <ul>
+              <li><span class="highlight">API Endpoint:</span> /api/mood-analysis for real-time sentiment analysis</li>
+              <li><span class="highlight">Model Loading:</span> Pre-trained model loaded once at startup for efficiency</li>
+              <li><span class="highlight">Real-time Processing:</span> Instant sentiment predictions with detailed metrics</li>
+              <li><span class="highlight">Error Handling:</span> Robust error handling for invalid inputs and edge cases</li>
+            </ul>
+          </div>
+        `;
+        showInfoDialog('Natural Language Processing (NLP)', nlpContent);
+      };
+
+      // RAC Information
+      window.showRACInfo = function() {
+        const racContent = `
+          <div class="info-section">
+            <h3><i class="fas fa-project-diagram"></i> Random Forest Classification (RAC)</h3>
+            <p>Random Forest is an ensemble learning method that operates by constructing multiple decision trees and outputting the class that is the mode of the classes predicted by individual trees.</p>
+            
+            <h3><i class="fas fa-tree"></i> How Random Forest Works:</h3>
+            <ul>
+              <li><span class="highlight">Multiple Trees:</span> Creates hundreds of decision trees</li>
+              <li><span class="highlight">Random Sampling:</span> Each tree uses different data samples</li>
+              <li><span class="highlight">Feature Selection:</span> Random subset of features for each tree</li>
+              <li><span class="highlight">Voting System:</span> Final prediction based on majority vote</li>
+              <li><span class="highlight">Overfitting Prevention:</span> Reduces overfitting through ensemble</li>
+            </ul>
+
+            <h3><i class="fas fa-chart-bar"></i> Advantages in Sentiment Analysis:</h3>
+            <ul>
+              <li>Handles high-dimensional data (TF-IDF features)</li>
+              <li>Provides feature importance scores</li>
+              <li>Robust to outliers and noise</li>
+              <li>Good performance on text classification tasks</li>
+              <li>Easy to interpret and explain</li>
+            </ul>
+
+            <h3><i class="fas fa-percentage"></i> Model Performance:</h3>
+            <p>Our Random Forest model achieves high accuracy in sentiment classification by learning patterns from thousands of text examples.</p>
+            
+            <h3><i class="fas fa-chart-bar"></i> Performance Metrics:</h3>
+            <ul>
+              <li><span class="highlight">Accuracy:</span> High classification accuracy across all sentiment classes</li>
+              <li><span class="highlight">Precision:</span> Low false positive rate for reliable predictions</li>
+              <li><span class="highlight">Recall:</span> Captures most sentiment patterns correctly</li>
+              <li><span class="highlight">F1-Score:</span> Balanced performance between precision and recall</li>
+              <li><span class="highlight">Confidence Scores:</span> Provides probability estimates for predictions</li>
+            </ul>
+
+            <h3><i class="fas fa-rocket"></i> Training Performance:</h3>
+            <ul>
+              <li><span class="highlight">Training Speed:</span> Fast training with 100 decision trees</li>
+              <li><span class="highlight">Memory Efficiency:</span> Optimized for web deployment</li>
+              <li><span class="highlight">Scalability:</span> Handles varying text lengths efficiently</li>
+              <li><span class="highlight">Real-time Inference:</span> Sub-second prediction times</li>
+            </ul>
+
+            <h3><i class="fas fa-shield-alt"></i> Model Robustness:</h3>
+            <ul>
+              <li><span class="highlight">Overfitting Prevention:</span> Ensemble method reduces overfitting</li>
+              <li><span class="highlight">Noise Handling:</span> Robust against noisy or unclear text</li>
+              <li><span class="highlight">Feature Importance:</span> Identifies most relevant text features</li>
+              <li><span class="highlight">Generalization:</span> Works well on unseen text samples</li>
+            </ul>
+            
+            <div class="example-text">
+              <strong>Example:</strong> 
+              <br><strong>Input Text:</strong> "I absolutely love this amazing product! It exceeded all my expectations and made me so happy."
+              <br><strong>Model Output:</strong> 
+              <br>• Sentiment: Positive (87.3% confidence)
+              <br>• Probability Distribution: Positive: 87.3%, Negative: 8.2%, Neutral: 4.5%
+              <br>• Feature Importance: "love", "amazing", "exceeded", "happy" identified as key positive indicators
+              <br>• Processing Time: 0.15 seconds
+            </div>
+          </div>
+        `;
+        showInfoDialog('Random Forest Classification (RAC)', racContent);
+      };
+
+      // Python Code with Monaco Editor
+      window.showPythonCode = function() {
+        const pythonContent = `
+          <div class="editor-header">
+            <div class="editor-title">
+              <i class="fas fa-file-code"></i>
+              sentiment_analysis.py
+              <span class="code-info-icon" id="pythonCodeInfoIcon" title="About these code snippets"><i class="fas fa-info-circle"></i></span>
+            </div>
+            <div class="editor-actions">
+              <select class="editor-btn" onchange="changeLanguage(this.value)" style="margin-right: 8px; padding: 4px 8px;">
+                <option value="python">Python</option>
+                <option value="cpp">C++</option>
+                <option value="c">C</option>
+                <option value="java">Java</option>
+                <option value="javascript">JavaScript</option>
+              </select>
+              <button class="editor-btn" onclick="runCode()">
+                <i class="fas fa-play"></i> Run
+              </button>
+              <button class="editor-btn" onclick="copyCode()">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+            </div>
+          </div>
+          <div id="monacoEditor" class="monaco-editor"></div>
+          <div class="output-panel" id="outputPanel">
+            <div class="output-line output-info">Ready to run sentiment analysis code...</div>
+          </div>
+          <div class="code-info-tooltip" id="pythonCodeInfoTooltip">
+            <button class="code-info-tooltip-close" id="pythonCodeInfoTooltipClose"><i class="fas fa-times"></i></button>
+            <div class="code-info-tooltip-content">
+              <strong>Note:</strong> These code snippets are just mini examples to show how the code works. It may not always give perfect results.<br>
+            </div>
+          </div>
+        `;
+        showInfoDialog('Python Code', pythonContent);
+        
+        // Initialize Monaco Editor after dialog is shown with performance optimization
+        requestIdleCallback(() => {
+          initializeMonacoEditor();
+          // Pre-load Pyodide in background for faster execution
+          initializePyodide().catch(console.error);
+        });
+      };
+
+      // Pyodide and Monaco Editor Functions
+      let monacoEditor = null;
+      let pyodide = null;
+      let pyodideInitialized = false;
+      
+      // Initialize Pyodide for Python execution
+      async function initializePyodide() {
+        if (pyodideInitialized) return;
+        
+        try {
+          console.log("Loading Pyodide...");
+          pyodide = await loadPyodide();
+          await pyodide.loadPackage("numpy");
+          await pyodide.loadPackage("pandas");
+          await pyodide.loadPackage("scikit-learn");
+          pyodideInitialized = true;
+          console.log("Pyodide loaded successfully with numpy, pandas, and scikit-learn!");
+        } catch (error) {
+          console.error("Pyodide loading failed:", error);
+          throw error;
+        }
+      }
+      
+      // Real Python code execution function
+      async function runPythonCode(code) {
+        if (!pyodideInitialized) {
+          throw new Error("Pyodide not initialized yet");
+        }
+        
+        try {
+          // Capture stdout
+          let output = '';
+          const originalStdout = pyodide.globals.get('print');
+          
+          // Override print to capture output
+          pyodide.globals.set('print', (...args) => {
+            output += args.join(' ') + '\n';
+          });
+          
+          // Execute the code
+          const result = await pyodide.runPythonAsync(code);
+          
+          // Restore original print
+          pyodide.globals.set('print', originalStdout);
+          
+          // If there's output, return it; otherwise return the result
+          if (output.trim()) {
+            return { success: true, output: output.trim() };
+          } else if (result !== undefined) {
+            return { success: true, output: String(result) };
+          } else {
+            return { success: true, output: "Code executed successfully! (No output to display)" };
+          }
+        } catch (error) {
+          return { success: false, error: error.message };
+        }
+      }
+      
+      function initializeMonacoEditor() {
+        require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@0.45.0/min/vs' } });
+        
+        require(['vs/editor/editor.main'], function() {
+          const pythonCode = `import pandas as pd
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.ensemble import RandomForestClassifier
+
+# Sample training data
+texts = [
+    "I love this amazing product!",
+    "This is terrible, I hate it.",
+    "The weather is okay today.",
+    "Fantastic experience, highly recommend!",
+    "Very disappointed with the service."
+]
+labels = ['positive', 'negative', 'neutral', 'positive', 'negative']
+
+# TF-IDF Vectorization
+tfidf = TfidfVectorizer(
+    max_features=1000,
+    stop_words='english',
+    ngram_range=(1, 2)
+)
+X = tfidf.fit_transform(texts)
+y = labels
+
+# Train Random Forest Classifier
+rf_model = RandomForestClassifier(
+    n_estimators=10,  # Use fewer trees for speed in browser
+    random_state=42
+)
+rf_model.fit(X, y)
+
+# Prediction function
+def predict_sentiment(text):
+    text_features = tfidf.transform([text])
+    prediction = rf_model.predict(text_features)[0]
+    probabilities = rf_model.predict_proba(text_features)[0]
+    return prediction, probabilities
+
+# Example usage
+text = "I really hate this movie!"
+sentiment, probs = predict_sentiment(text)
+print(f"Sentiment: {sentiment}")
+print(f"Confidence: {max(probs)*100:.1f}%")`;
+
+          // Add language selector functionality
+          window.changeLanguage = function(lang) {
+            if (monacoEditor) {
+              monaco.editor.setModelLanguage(monacoEditor.getModel(), lang);
+              
+              // Update editor title
+              const editorTitle = document.querySelector('.editor-title');
+              if (editorTitle) {
+                const fileExtensions = {
+                  'python': 'sentiment_analysis.py',
+                  'cpp': 'main.cpp',
+                  'c': 'main.c',
+                  'java': 'Main.java',
+                  'javascript': 'script.js',
+                  'typescript': 'script.ts'
+                };
+                editorTitle.innerHTML = `
+                  <i class="fas fa-file-code"></i>
+                  ${fileExtensions[lang] || 'script.' + lang}
+                `;
+              }
+              
+              // Update example code based on language
+              const exampleCodes = {
+                'python': `# Simple Sentiment Analyzer (Python)\nimport re\npositive_words = ['love', 'great', 'good', 'amazing', 'wonderful']\nnegative_words = ['hate', 'terrible', 'bad', 'awful', 'horrible']\n\ndef analyze_sentiment(text):\n    words = re.findall(r'\\b\\w+\\b', text.lower())\n    pos = sum(w in positive_words for w in words)\n    neg = sum(w in negative_words for w in words)\n    if pos > neg:\n        return 'Positive'\n    elif neg > pos:\n        return 'Negative'\n    else:\n        return 'Neutral'\n\ntext = "I love this amazing product!"\nprint('Text:', text)\nprint('Sentiment:', analyze_sentiment(text))`,
+                'cpp': `#include <iostream>\n#include <vector>\n#include <string>\nusing namespace std;\n\nvector<string> positive_words = {"love", "great", "good", "amazing", "wonderful"};\nvector<string> negative_words = {"hate", "terrible", "bad", "awful", "horrible"};\n\nstring analyzeSentiment(const string& text) {\n    int pos = 0, neg = 0;\n    for (const string& w : positive_words) if (text.find(w) != string::npos) pos++;\n    for (const string& w : negative_words) if (text.find(w) != string::npos) neg++;\n    if (pos > neg) return "Positive";\n    else if (neg > pos) return "Negative";\n    else return "Neutral";\n}\n\nint main() {\n    string text = "I love this amazing product!";\n    cout << "Text: " << text << endl;\n    cout << "Sentiment: " << analyzeSentiment(text) << endl;\n    return 0;\n}`,
+                'c': `#include <stdio.h>\n#include <string.h>\n\nconst char* positive_words[] = {"love", "great", "good", "amazing", "wonderful"};\nconst char* negative_words[] = {"hate", "terrible", "bad", "awful", "horrible"};\n\nconst char* analyzeSentiment(const char* text) {\n    int pos = 0, neg = 0;\n    for (int i = 0; i < 5; i++) if (strstr(text, positive_words[i])) pos++;\n    for (int i = 0; i < 5; i++) if (strstr(text, negative_words[i])) neg++;\n    if (pos > neg) return "Positive";\n    else if (neg > pos) return "Negative";\n    else return "Neutral";\n}\n\nint main() {\n    const char* text = "I love this amazing product!";\n    printf("Text: %s\\n", text);\n    printf("Sentiment: %s\\n", analyzeSentiment(text));\n    return 0;\n}`,
+                'java': `public class Main {\n    static String[] positiveWords = {"love", "great", "good", "amazing", "wonderful"};\n    static String[] negativeWords = {"hate", "terrible", "bad", "awful", "horrible"};\n\n    public static String analyzeSentiment(String text) {\n        int pos = 0, neg = 0;\n        text = text.toLowerCase();\n        for (String w : positiveWords) if (text.contains(w)) pos++;\n        for (String w : negativeWords) if (text.contains(w)) neg++;\n        if (pos > neg) return "Positive";\n        else if (neg > pos) return "Negative";\n        else return "Neutral";\n    }\n\n    public static void main(String[] args) {\n        String text = "I love this amazing product!";\n        System.out.println("Text: " + text);\n        System.out.println("Sentiment: " + analyzeSentiment(text));\n    }\n}`,
+                'javascript': `// Simple Sentiment Analyzer (JavaScript)\nconst positiveWords = ['love', 'great', 'good', 'amazing', 'wonderful'];\nconst negativeWords = ['hate', 'terrible', 'bad', 'awful', 'horrible'];\n\nfunction analyzeSentiment(text) {\n  text = text.toLowerCase();\n  let pos = positiveWords.filter(w => text.includes(w)).length;\n  let neg = negativeWords.filter(w => text.includes(w)).length;\n  if (pos > neg) return 'Positive';\n  else if (neg > pos) return 'Negative';\n  else return 'Neutral';\n}\n\nconst text = "I love this amazing product!";\nconsole.log('Text:', text);\nconsole.log('Sentiment:', analyzeSentiment(text));`
+              };
+              
+              if (exampleCodes[lang]) {
+                monacoEditor.setValue(exampleCodes[lang]);
+              }
+            }
+          };
+
+          monacoEditor = monaco.editor.create(document.getElementById('monacoEditor'), {
+            value: pythonCode,
+            language: 'python',
+            theme: 'vs-dark',
+            fontSize: 13,
+            lineNumbers: 'on',
+            roundedSelection: false,
+            scrollBeyondLastLine: false,
+            readOnly: false,
+            automaticLayout: true,
+            minimap: { enabled: false },
+            scrollbar: {
+              vertical: 'visible',
+              horizontal: 'visible',
+              verticalScrollbarSize: 8,
+              horizontalScrollbarSize: 8
+            }
+          });
+        });
+      }
+
+      // Multi-Language Code Execution Function
+      window.runCode = async function() {
+        const outputPanel = document.getElementById('outputPanel');
+        const code = monacoEditor.getValue();
+        const language = monacoEditor.getModel().getLanguageId();
+        const runBtns = document.querySelectorAll('.editor-btn');
+        // Disable Run button(s)
+        runBtns.forEach(btn => {
+          if (btn.innerText.includes('Run')) btn.disabled = true;
+        });
+        // Show loading spinner
+        outputPanel.innerHTML = `
+          <div class="output-line output-info">⏳ Running <b>${language.toUpperCase()}</b> code...</div>
+          <div class="output-line"><i class="fas fa-spinner fa-spin"></i> Please wait...</div>
+        `;
+        try {
+          if (language === 'python') {
+            if (!pyodideInitialized) {
+              outputPanel.innerHTML = `<div class='output-line output-info'>🐍 Python environment is loading... <i class='fas fa-spinner fa-spin'></i></div>`;
+              await initializePyodide();
+            }
+            outputPanel.innerHTML = `<div class='output-line output-info'>🐍 Executing Python code... <i class='fas fa-spinner fa-spin'></i></div>`;
+            const result = await runPythonCode(code);
+            if (result.success) {
+              outputPanel.innerHTML = `
+                <div class="output-line output-success">✅ Python code executed successfully!</div>
+                <div class="output-line output-info">📤 Output:</div>
+                <div class="output-line">${result.output.replace(/\n/g, '<br>')}</div>
+              `;
+            } else {
+              outputPanel.innerHTML = `
+                <div class="output-line output-error">❌ Python Error:</div>
+                <div class="output-line output-error">${result.error}</div>
+                <div class="output-line output-info">💡 Check your Python syntax</div>
+              `;
+            }
+          } else {
+            outputPanel.innerHTML = `<div class='output-line output-info'>⚡ Sending ${language.toUpperCase()} code to server... <i class='fas fa-spinner fa-spin'></i></div>`;
+            const response = await fetch('/api/execute-code', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ code: code, language: language })
+            });
+            const result = await response.json();
+            if (result.success) {
+              outputPanel.innerHTML = `
+                <div class="output-line output-success">✅ ${language.toUpperCase()} code executed successfully!</div>
+                <div class="output-line output-info">📤 Output:</div>
+                <div class="output-line">${(result.output || '').replace(/\n/g, '<br>')}</div>
+              `;
+            } else {
+              outputPanel.innerHTML = `
+                <div class="output-line output-error">❌ ${language.toUpperCase()} Error:</div>
+                <div class="output-line output-error">${(result.error || 'Unknown error').replace(/\n/g, '<br>')}</div>
+                <div class="output-line output-info">💡 Check your ${language} syntax</div>
+              `;
+            }
+          }
+        } catch (error) {
+          outputPanel.innerHTML = `
+            <div class="output-line output-error">❌ Execution failed:</div>
+            <div class="output-line output-error">${error.message}</div>
+            <div class="output-line output-info">�� Please try again</div>
+          `;
+        } finally {
+          // Re-enable Run button(s)
+          runBtns.forEach(btn => {
+            if (btn.innerText.includes('Run')) btn.disabled = false;
+          });
+          // Scroll output into view
+          outputPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      };
+
+      // Copy Code Function
+      window.copyCode = function() {
+        if (monacoEditor) {
+          const code = monacoEditor.getValue();
+          navigator.clipboard.writeText(code).then(() => {
+            const outputPanel = document.getElementById('outputPanel');
+            outputPanel.innerHTML = `
+              <div class="output-line output-success">✓ Code copied to clipboard successfully!</div>
+            `;
+          });
+        }
+      };
+
+      // Info Dialog Event Listeners
+      infoDialogClose.addEventListener('click', closeInfoDialog);
+      infoDialog.addEventListener('click', function(e) {
+        if (e.target === infoDialog) {
+          closeInfoDialog();
+        }
+      });
+
+      // Modal close logic
+      resultModalClose.addEventListener('click', function() {
+        resultModal.classList.remove('active');
+      });
+      window.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          resultModal.classList.remove('active');
+          closeInfoDialog();
+        }
+      });
+
+      // Python code info icon tooltip logic
+      document.addEventListener('click', function(e) {
+        const icon = document.getElementById('pythonCodeInfoIcon');
+        const tooltip = document.getElementById('pythonCodeInfoTooltip');
+        const closeBtn = document.getElementById('pythonCodeInfoTooltipClose');
+        if (!icon || !tooltip || !closeBtn) return;
+        if (icon.contains(e.target)) {
+          // Show tooltip
+          tooltip.style.display = 'block';
+          // Position tooltip just below and left-aligned with the icon
+          const rect = icon.getBoundingClientRect();
+          tooltip.style.left = rect.left + window.scrollX + 'px';
+          tooltip.style.top = rect.bottom + window.scrollY + 6 + 'px';
+        } else if (closeBtn.contains(e.target)) {
+          tooltip.style.display = 'none';
+        } else if (!tooltip.contains(e.target)) {
+          tooltip.style.display = 'none';
+        }
+      });
+    });
+  </script>
+  {% endraw %}
+</body>
+</html>
