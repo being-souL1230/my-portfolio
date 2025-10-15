@@ -1,59 +1,16 @@
-# Core Flask dependencies
+# Core Flask dependencies (lightweight version)
 Flask==3.1.1
-Flask-Caching==2.1.0
-flask-cors==6.0.1
-Flask-WTF==1.2.2
-gunicorn==23.0.0
 Jinja2==3.1.5
 Werkzeug==3.1.3
-WTForms==3.2.1
-itsdangerous==2.2.0
 MarkupSafe==3.0.2
 blinker==1.9.0
 click==8.1.8
 
-# Web requests and parsing
-requests==2.32.4
-beautifulsoup4==4.13.3
-soupsieve==2.6
-certifi==2025.1.31
-charset-normalizer==3.4.1
-idna==3.10
-urllib3==2.3.0
-
-# Machine Learning (lightweight)
-scikit-learn==1.7.0
-numpy==2.1.3
-pandas==2.2.3
-scipy==1.15.3
-joblib==1.5.1
-threadpoolctl==3.6.0
-
-# NLP for mood analysis
-nltk==3.9.1
-regex==2024.11.6
-
 # Markdown rendering
 Markdown==3.8
 
-# Caching
+# Caching (lightweight in-memory cache)
 cachelib==0.9.0
 
-# Environment variables
-python-dotenv==1.1.0
-
-# Testing
-pytest==7.4.2
-pytest-flask==1.3.0
-pluggy==1.6.0
-iniconfig==2.1.0
-exceptiongroup==1.2.2
-tomli==2.2.1
-
-# Utilities
+# Basic utilities
 python-dateutil==2.9.0.post0
-pytz==2025.2
-tzdata==2025.2
-six==1.17.0
-packaging==25.0
-colorama==0.4.6
