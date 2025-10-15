@@ -520,7 +520,7 @@
     <!-- Certificates Grid -->
     <div class="certificates-grid">
       <div class="certificate-card featured" onclick="showCertificateModal(1)">
-        <img src="{{ url_for('static', filename='data/AI for Beginners.png') }}" alt="AI for Beginners Certificate - Hewlett Packard" class="certificate-image">
+        <img src="{{ url_for('static', filename='certificates/AI for Beginners.png') }}" alt="AI for Beginners Certificate - Hewlett Packard" class="certificate-image">
         <div class="certificate-overlay">
           <button class="view-details-btn">
             <i class="fas fa-eye"></i> View Details
@@ -530,7 +530,7 @@
       </div>
 
       <div class="certificate-card featured" onclick="showCertificateModal(2)">
-        <img src="{{ url_for('static', filename='data/Introduction to Cybersecurity Awareness.png') }}" alt="Cybersecurity Certificate - Hewlett Packard" class="certificate-image">
+        <img src="{{ url_for('static', filename='certificates/Introduction to Cybersecurity Awareness.png') }}" alt="Cybersecurity Certificate - Hewlett Packard" class="certificate-image">
         <div class="certificate-overlay">
           <button class="view-details-btn">
             <i class="fas fa-eye"></i> View Details
@@ -572,8 +572,8 @@
         date: "January 2025",
         description: "Comprehensive course covering fundamental concepts of artificial intelligence, machine learning basics, neural networks, and practical AI applications.",
         skills: ["Artificial Intelligence", "Machine Learning", "Neural Networks", "Python Programming", "Data Analysis", "AI Ethics", "AI Applications", "Problem Solving"],
-        pdfUrl: "{{ url_for('static', filename='data/AI for Beginners.pdf') }}",
-        imageUrl: "{{ url_for('static', filename='data/AI for Beginners.png') }}"
+        pdfUrl: "{{ url_for('static', filename='certificates/AI for Beginners.pdf') }}",
+        imageUrl: "{{ url_for('static', filename='certificates/AI for Beginners.png') }}"
       },
       2: {
         title: "Introduction to Cybersecurity",
@@ -581,8 +581,8 @@
         date: "December 2024",
         description: "Essential cybersecurity awareness training covering threat identification, security best practices, data protection, and cyber hygiene fundamentals.",
         skills: ["Cybersecurity", "Threat Detection", "Data Protection", "Security Awareness", "Risk Management", "Best Practices", "Compliance", "Incident Response"],
-        pdfUrl: "{{ url_for('static', filename='data/Introduction to Cybersecurity Awareness.pdf') }}",
-        imageUrl: "{{ url_for('static', filename='data/Introduction to Cybersecurity Awareness.png') }}"
+        pdfUrl: "{{ url_for('static', filename='certificates/Introduction to Cybersecurity Awareness.pdf') }}",
+        imageUrl: "{{ url_for('static', filename='certificates/Introduction to Cybersecurity Awareness.png') }}"
       }
     };
 
