@@ -3,8 +3,8 @@ class ThemeSwitcher {
     this.themeToggle = document.getElementById('theme-toggle');
     // Check if mobile device
     this.isMobile = window.innerWidth <= 768;
-    // Set default theme: blue for mobile, red for desktop (or saved preference)
-    this.theme = this.isMobile ? 'blue' : (localStorage.getItem('theme') || 'red');
+    // Set default theme: blue for both mobile and desktop (or saved preference)
+    this.theme = this.isMobile ? 'blue' : (localStorage.getItem('theme') || 'blue');
     this.isAnimating = false;
     this.init();
   }
