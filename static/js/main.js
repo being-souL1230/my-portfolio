@@ -1,7 +1,6 @@
     document.addEventListener('DOMContentLoaded', function() {
       // DOM Elements
       const elements = {
-        shimmer: document.getElementById('shimmer'),
         contactModal: document.querySelector('.contact-modal'),
         emailDialog: document.querySelector('.email-dialog'),
         modalOverlay: document.querySelector('.modal-overlay'),
@@ -557,13 +556,6 @@
         });
       }
 
-      // Loading shimmer effect
-      setTimeout(() => {
-        elements.shimmer.style.opacity = '0';
-        setTimeout(() => {
-          elements.shimmer.style.display = 'none';
-        }, 300);
-      }, 1000);
 
       // Keyboard events
       document.addEventListener('keydown', (e) => {

@@ -9,6 +9,46 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
+  <script>
+    // Inherit theme from parent window or localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if mobile device
+      const isMobile = window.innerWidth <= 768;
+      
+      // Get theme from localStorage or default
+      let theme = isMobile ? 'blue' : (localStorage.getItem('theme') || 'red');
+      
+      // Try to get theme from parent window if this is opened from main site
+      try {
+        if (window.opener && window.opener.localStorage) {
+          const parentTheme = window.opener.localStorage.getItem('theme');
+          if (parentTheme && !isMobile) {
+            theme = parentTheme;
+          }
+        }
+      } catch (e) {
+        // Ignore cross-origin errors
+      }
+      
+      // Apply theme
+      setTheme(theme);
+      
+      function setTheme(theme) {
+        // Remove any existing theme styles
+        const oldLink = document.getElementById('theme-style');
+        if (oldLink) {
+          oldLink.remove();
+        }
+
+        // Add the appropriate theme stylesheet
+        const link = document.createElement('link');
+        link.id = 'theme-style';
+        link.rel = 'stylesheet';
+        link.href = `/static/css/main${theme === 'blue' ? '_blue_theme' : ''}.css`;
+        document.head.appendChild(link);
+      }
+    });
+  </script>
 
   <style>
     /* Certificates-specific styles */
@@ -81,7 +121,7 @@
 
     .certificate-card:hover {
       transform: translateY(-10px) scale(1.02);
-      box-shadow: 0 25px 60px rgba(59, 130, 246, 0.4);
+      box-shadow: 0 25px 60px var(--primary-glow);
       border-color: var(--primary-light);
       background: rgba(15, 23, 42, 0.6);
     }
