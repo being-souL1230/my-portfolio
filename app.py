@@ -13,6 +13,15 @@ app = Flask(__name__)
 # Configuration
 app.config['SECRET_KEY'] = 'rishab-portfolio-2025-secret-key'
 
+# Simple performance optimization
+@app.after_request
+def add_cache_headers(response):
+    # Cache static files for 1 hour
+    if request.endpoint == 'static':
+        response.cache_control.max_age = 3600
+        response.cache_control.public = True
+    return response
+
 # Simple in-memory cache (replaces Flask-Caching)
 class SimpleCache:
     def __init__(self):
