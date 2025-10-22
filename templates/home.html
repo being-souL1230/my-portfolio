@@ -178,6 +178,11 @@
 <body>
   <div class="shimmer" id="shimmer"></div>
   <button id="theme-toggle" aria-label="Toggle theme"></button>
+  
+  <!-- Chatbot Button -->
+  <button id="chatbot-toggle" aria-label="Open Chatbot">
+    <i class="fas fa-robot"></i>
+  </button>
 
   <section id="home" class="section" style="position: relative; overflow: hidden;">
     <div id="particles-js"></div>
@@ -185,7 +190,7 @@
       <div class="home-content">
         <h1>Crafting digital <span id="changer">experiences</span></h1>
     
-        <p>I'm Rishab, a passionate (for the description) Full Stack Developer with 1 year of experience building modern web applications (Failed 10 times, but still). I specialize in Python-based backend development with Flask & Django, while creating responsive frontends with HTML/CSS/JavaScript. My expertise extends to database design (MySQL/MongoDB(Used MongoDB only one time till now, but need to show)), AI/ML implementations, and system architecture. I actually don't know much, but I'll make sure that I can answer your question even if I don't know anything about the question you ask, spitting random stuff like pointing to Twin Towers in 2025.</p>
+        <p>I'm Rishab, a passionate (for the description) Full Stack Developer with 1 year of experience building modern web applications (Failed 10 times, but still). I specialize in Python-based backend development with Flask & Django, while creating responsive frontends with HTML/CSS/JavaScript. My expertise extends to database design using MySQL/MongoDB(Used MongoDB only one time till now, but need to show), AI/ML implementations, and system architecture. I actually don't know much, but I'll make sure that I can answer your question even if I don't know anything about the question you ask, spitting random stuff like pointing to Twin Towers in 2025.</p>
         
         <div class="expertise-highlights">
           <div class="highlight-item" data-expertise="fullstack">
@@ -290,12 +295,29 @@
         </div>
       </div>
       
-      <div class="profile-circle">
-        <video muted loop playsinline preload="metadata">
-          <source src="{{ url_for('static', filename='Rishab_video.mp4') }}" type="video/mp4">
-          <source src="{{ url_for('static', filename='Rishab_video.webm') }}" type="video/webm">
-          Your browser does not support the video tag.
-        </video>
+      <div class="profile-section">
+        <div class="profile-circle">
+          <video muted loop playsinline preload="metadata">
+            <source src="{{ url_for('static', filename='Rishab_video.mp4') }}" type="video/mp4">
+            <source src="{{ url_for('static', filename='Rishab_video.webm') }}" type="video/webm">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        
+        <!-- GitHub Stats Section -->
+        <div class="github-stats-section">
+          <div class="github-stats-container">
+            <div class="github-stat-card">
+              <span class="stat-number" id="totalRepos">15+</span>
+              <span class="stat-label">Repos</span>
+            </div>
+            
+            <div class="github-stat-card">
+              <span class="stat-number" id="totalCommits">200+</span>
+              <span class="stat-label">Commits</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -395,6 +417,58 @@
         <div class="skill-bars" id="skillBars"></div>
       </div>
       <div class="usage" id="tooltipUsage"></div>
+    </div>
+  </div>
+
+  <!-- Chatbot Modal -->
+  <div class="chatbot-modal" id="chatbotModal">
+    <div class="chatbot-container">
+      <div class="chatbot-header">
+        <div class="bot-avatar">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="bot-info">
+          <h3>Rishab's AI Assistant</h3>
+          <span class="bot-status">Online</span>
+        </div>
+        <button class="chatbot-close" id="chatbotClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="chatbot-messages" id="chatbotMessages">
+        <div class="message bot-message">
+          <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="message-content">
+            <p>Hi! I'm Rishab's AI assistant. Ask me anything about his skills, projects, or experience! 🚀</p>
+            <span class="message-time">Just now</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chatbot-quick-actions">
+        <button class="quick-btn" onclick="sendQuickMessage('Tell me about your skills')">
+          <i class="fas fa-code"></i> Skills
+        </button>
+        <button class="quick-btn" onclick="sendQuickMessage('Show me your projects')">
+          <i class="fas fa-project-diagram"></i> Projects
+        </button>
+        <button class="quick-btn" onclick="sendQuickMessage('What is your experience?')">
+          <i class="fas fa-briefcase"></i> Experience
+        </button>
+        <button class="quick-btn" onclick="sendQuickMessage('How can I contact you?')">
+          <i class="fas fa-envelope"></i> Contact
+        </button>
+      </div>
+      
+      <div class="chatbot-input">
+        <input type="text" id="chatbotInput" placeholder="Ask me anything about Rishab..." maxlength="200">
+        <button id="chatbotSend">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -594,6 +668,210 @@
       
       animate();
       console.log('Custom particles initialized');
+    });
+
+    // Simple GitHub Stats (Static Values)
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set static values - no API calls needed
+      document.getElementById('totalRepos').textContent = '15+';
+      document.getElementById('totalCommits').textContent = '200+';
+    });
+
+    // Chatbot Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const chatbotToggle = document.getElementById('chatbot-toggle');
+      const chatbotModal = document.getElementById('chatbotModal');
+      const chatbotClose = document.getElementById('chatbotClose');
+      const chatbotInput = document.getElementById('chatbotInput');
+      const chatbotSend = document.getElementById('chatbotSend');
+      const chatbotMessages = document.getElementById('chatbotMessages');
+
+      // Toggle chatbot
+      chatbotToggle.addEventListener('click', function() {
+        chatbotModal.classList.toggle('active');
+        if (chatbotModal.classList.contains('active')) {
+          chatbotInput.focus();
+          // Scroll to bottom when opening chatbot
+          setTimeout(() => {
+            scrollToBottom();
+          }, 300);
+        }
+      });
+
+      // Close chatbot
+      chatbotClose.addEventListener('click', function() {
+        chatbotModal.classList.remove('active');
+      });
+
+      // Send message
+      function sendMessage() {
+        const message = chatbotInput.value.trim();
+        if (!message) return;
+
+        // Add user message
+        addMessage(message, 'user');
+        chatbotInput.value = '';
+
+        // Show typing indicator
+        showTypingIndicator();
+
+        // Generate bot response
+        setTimeout(() => {
+          hideTypingIndicator();
+          const response = generateBotResponse(message);
+          addMessage(response, 'bot');
+        }, 1000 + Math.random() * 1000);
+      }
+
+      // Add message to chat with smooth animations
+      function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        
+        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        messageDiv.innerHTML = `
+          <div class="message-avatar">
+            <i class="fas fa-${sender === 'bot' ? 'robot' : 'user'}"></i>
+          </div>
+          <div class="message-content">
+            <p>${text}</p>
+            <span class="message-time">${time}</span>
+          </div>
+        `;
+        
+        chatbotMessages.appendChild(messageDiv);
+        
+        // Force smooth scroll to bottom with delay for animation
+        setTimeout(() => {
+          scrollToBottom();
+        }, 100);
+      }
+
+      // Smooth scroll to bottom function
+      function scrollToBottom() {
+        chatbotMessages.scrollTo({
+          top: chatbotMessages.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+
+      // Show typing indicator with smooth scroll
+      function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot-message typing-indicator';
+        typingDiv.id = 'typingIndicator';
+        
+        typingDiv.innerHTML = `
+          <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="message-content">
+            <p>Typing<span class="dots"></span></p>
+          </div>
+        `;
+        
+        chatbotMessages.appendChild(typingDiv);
+        
+        // Smooth scroll to show typing indicator
+        setTimeout(() => {
+          scrollToBottom();
+        }, 100);
+      }
+
+      // Hide typing indicator
+      function hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+          typingIndicator.remove();
+        }
+      }
+
+      // Smart Bot Response Generator
+      function generateBotResponse(message) {
+        const msg = message.toLowerCase();
+        
+        // Skills related
+        if (msg.includes('skill') || msg.includes('technology') || msg.includes('tech')) {
+          return "🚀 Rishab is skilled in:<br>• <strong>Frontend:</strong> HTML, CSS, JavaScript, React<br>• <strong>Backend:</strong> Python, Flask, Django<br>• <strong>Database:</strong> MySQL, MongoDB<br>• <strong>Other:</strong> AI/ML, Git, ASP.NET";
+        }
+        
+        // Projects related
+        if (msg.includes('project') || msg.includes('work') || msg.includes('portfolio')) {
+          return "💼 Check out Rishab's amazing projects:<br>• <strong>Mood Detector:</strong> AI-powered sentiment analysis<br>• <strong>Pass Predictor:</strong> ML model for academic predictions<br>• <strong>Resume Maker:</strong> Dynamic resume generator<br>• <strong>Chat App:</strong> Real-time messaging system<br><br>Visit the Projects section to see demos! 🎯";
+        }
+        
+        // Experience related
+        if (msg.includes('experience') || msg.includes('work') || msg.includes('job')) {
+          return "💪 Rishab has 1+ year of experience in:<br>• Full Stack Web Development<br>• Python Backend Development<br>• AI/ML Implementation<br>• Database Design & Management<br><br>He's passionate about creating innovative solutions! 🔥";
+        }
+        
+        // Contact related
+        if (msg.includes('contact') || msg.includes('email') || msg.includes('reach')) {
+          return "📧 You can reach Rishab at:<br>• <strong>Email:</strong> rishabdixit402@gmail.com<br>• <strong>GitHub:</strong> github.com/being-souL1230<br>• <strong>LinkedIn:</strong> linkedin.com/in/rishab-dixit-6497aa357<br><br>Feel free to connect! 🤝";
+        }
+        
+        // Education related
+        if (msg.includes('education') || msg.includes('study') || msg.includes('college')) {
+          return "🎓 Rishab is currently pursuing his studies while actively working on real-world projects. He believes in practical learning and has built multiple applications to strengthen his skills!";
+        }
+        
+        // AI/ML related
+        if (msg.includes('ai') || msg.includes('ml') || msg.includes('machine learning') || msg.includes('artificial intelligence')) {
+          return "🤖 Rishab has hands-on experience with AI/ML:<br>• <strong>Sentiment Analysis:</strong> NLP with TF-IDF & Random Forest<br>• <strong>Predictive Models:</strong> Academic performance prediction<br>• <strong>Data Processing:</strong> Feature engineering & model training<br><br>Check out his Mood Detector demo! 🧠";
+        }
+        
+        // Greeting responses
+        if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
+          return "👋 Hello! I'm Rishab's AI assistant. I can tell you about his skills, projects, experience, and how to contact him. What would you like to know? 😊";
+        }
+        
+        // Thank you responses
+        if (msg.includes('thank') || msg.includes('thanks')) {
+          return "🙏 You're welcome! Feel free to ask me anything else about Rishab's work or reach out to him directly. Have a great day! ✨";
+        }
+        
+        // Default responses for unmatched queries
+        const defaultResponses = [
+          "🤔 That's an interesting question! You can ask me about Rishab's skills, projects, experience, or contact information. What specific area interests you?",
+          "💡 I'd love to help! Try asking about Rishab's technical skills, his portfolio projects, or how to get in touch with him.",
+          "🎯 I'm here to share info about Rishab! Ask me about his programming languages, recent projects, or professional background.",
+          "✨ Great question! I can tell you about Rishab's development experience, his AI/ML projects, or his contact details. What would you like to explore?"
+        ];
+        
+        return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+      }
+
+      // Quick message function with smooth interaction
+      window.sendQuickMessage = function(message) {
+        // Ensure chatbot is open
+        if (!chatbotModal.classList.contains('active')) {
+          chatbotModal.classList.add('active');
+          setTimeout(() => {
+            scrollToBottom();
+            chatbotInput.value = message;
+            sendMessage();
+          }, 300);
+        } else {
+          chatbotInput.value = message;
+          sendMessage();
+        }
+      };
+
+      // Event listeners
+      chatbotSend.addEventListener('click', sendMessage);
+      chatbotInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          sendMessage();
+        }
+      });
+
+      // Close chatbot when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!chatbotModal.contains(e.target) && !chatbotToggle.contains(e.target)) {
+          chatbotModal.classList.remove('active');
+        }
+      });
     });
   </script>
 </body>

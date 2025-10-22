@@ -88,6 +88,89 @@
       display: flex;
       gap: 8px;
     }
+
+    /* Hamburger Menu for Mobile */
+    .hamburger-menu {
+      display: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(30, 41, 59, 0.2) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: var(--primary-light);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .hamburger-menu:hover {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(30, 41, 59, 0.3) 100%);
+      border-color: var(--primary-light);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+
+    .mobile-menu {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(59, 130, 246, 0.1) 100%);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 12px;
+      min-width: 180px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+
+    .mobile-menu.active {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .mobile-menu-item {
+      display: block;
+      width: 100%;
+      background: transparent;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: var(--primary-light);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.8em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+
+    .mobile-menu-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .mobile-menu-item:hover {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(30, 41, 59, 0.3) 100%);
+      border-color: var(--primary-light);
+      transform: translateX(2px);
+    }
     
     .header-btn {
       background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(30, 41, 59, 0.2) 100%);
@@ -1191,11 +1274,11 @@
         font-size: 0.9em;
       }
       .header-buttons {
-        position: relative;
-        top: auto;
-        right: auto;
-        justify-content: center;
-        margin-top: 15px;
+        display: none;
+      }
+      
+      .hamburger-menu {
+        display: block;
       }
     }
 
@@ -1439,6 +1522,24 @@
         <button class="header-btn" onclick="showRACInfo()">RAC</button>
         <button class="header-btn" onclick="showPythonCode()">Python Code</button>
       </div>
+      
+      <!-- Hamburger Menu for Mobile -->
+      <div class="hamburger-menu" id="hamburgerMenu">
+        <i class="fas fa-bars"></i>
+      </div>
+      
+      <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-menu-item" onclick="showNLPInfo(); closeMobileMenu();">
+          <i class="fas fa-brain"></i> NLP Info
+        </button>
+        <button class="mobile-menu-item" onclick="showRACInfo(); closeMobileMenu();">
+          <i class="fas fa-tree"></i> RAC Info
+        </button>
+        <button class="mobile-menu-item" onclick="showPythonCode(); closeMobileMenu();">
+          <i class="fas fa-code"></i> Python Code
+        </button>
+      </div>
+      
       <h1>🧠 Sentiment Analysis</h1>
       <p>Advanced machine learning model that analyzes text to predict sentiment using Natural Language Processing and Random Forest classification.</p>
     </div>
@@ -1517,6 +1618,27 @@
       const modalResultContent = document.getElementById('modalResultContent');
       const resultModalClose = document.getElementById('resultModalClose');
       const mlMetricsContainer = document.getElementById('mlMetricsContainer');
+      
+      // Hamburger Menu Elements
+      const hamburgerMenu = document.getElementById('hamburgerMenu');
+      const mobileMenu = document.getElementById('mobileMenu');
+      
+      // Hamburger Menu Functionality
+      hamburgerMenu.addEventListener('click', function() {
+        mobileMenu.classList.toggle('active');
+      });
+      
+      // Close mobile menu when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!hamburgerMenu.contains(e.target) && !mobileMenu.contains(e.target)) {
+          mobileMenu.classList.remove('active');
+        }
+      });
+      
+      // Close mobile menu function
+      window.closeMobileMenu = function() {
+        mobileMenu.classList.remove('active');
+      };
 
       // Show dashboard placeholder initially
       function showDashboardPlaceholder() {
