@@ -15,6 +15,13 @@
   overflow: hidden;
 }
 
+/* Hide theme toggle on mobile */
+@media (max-width: 768px) {
+  #theme-toggle {
+    display: none !important;
+  }
+}
+
 #theme-toggle::before {
   content: '';
   position: absolute;
@@ -403,24 +410,6 @@
   #changer {
     display: inline-block;
     transition: opacity 0.5s ease, transform 0.5s ease;
-  }
-
-  /* Hide animation on mobile, show only "applications" */
-  @media (max-width: 768px) {
-    #changer {
-      display: none !important;
-    }
-    
-    .home-content h1 {
-      position: relative;
-    }
-    
-    .home-content h1::after {
-      content: "applications";
-      color: var(--primary);
-      font-weight: 700;
-      display: inline-block;
-    }
   }
 
   .fade-out {
@@ -2884,7 +2873,7 @@
   cursor: pointer;
   z-index: 1000;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(255, 77, 109, 0.3);
+  box-shadow: 0 4px 20px var(--primary-glow);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2892,7 +2881,7 @@
 
 #chatbot-toggle:hover {
   transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 30px rgba(255, 77, 109, 0.4);
+  box-shadow: 0 8px 30px var(--primary-glow);
 }
 
 /* Chatbot Modal */

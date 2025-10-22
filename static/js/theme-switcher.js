@@ -1,7 +1,10 @@
 class ThemeSwitcher {
   constructor() {
     this.themeToggle = document.getElementById('theme-toggle');
-    this.theme = localStorage.getItem('theme') || 'red';
+    // Check if mobile device
+    this.isMobile = window.innerWidth <= 768;
+    // Set default theme: blue for mobile, red for desktop (or saved preference)
+    this.theme = this.isMobile ? 'blue' : (localStorage.getItem('theme') || 'red');
     this.isAnimating = false;
     this.init();
   }
@@ -25,8 +28,10 @@ class ThemeSwitcher {
     link.href = `/static/css/main${theme === 'blue' ? '_blue_theme' : ''}.css`;
     document.head.appendChild(link);
 
-    // Save to localStorage
-    localStorage.setItem('theme', theme);
+    // Save to localStorage only on desktop
+    if (!this.isMobile) {
+      localStorage.setItem('theme', theme);
+    }
     
     // Update toggle button state
     if (this.themeToggle) {
@@ -36,7 +41,8 @@ class ThemeSwitcher {
   }
 
   toggleTheme() {
-    if (this.isAnimating) return;
+    // Disable theme switching on mobile
+    if (this.isMobile || this.isAnimating) return;
     this.isAnimating = true;
     
     // Toggle between red and blue themes
