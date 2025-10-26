@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rishab | Full Stack Web Developer</title>
+  <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👨‍💻</text></svg>">
+  <!-- Preload critical resources -->
+  <!-- Preload critical resources for faster page load -->
+  <link rel="preload" href="{{ url_for('static', filename='css/main.css') }}" as="style">
+  <link rel="preload" href="{{ url_for('static', filename='js/main.js') }}" as="script">
+  <link rel="preload" as="font" href="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2" type="font/woff2" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
+  <!-- Defer heavy scripts to load after page content -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js" defer></script>
+  <script src="{{ url_for('static', filename='js/theme-switcher.js') }}" defer></script>
+  <style>
+    /* Critical CSS for faster initial render - Blue theme default */
+    :root {
+      --primary: #3b82f6;
+      --primary-light: #60a5fa;
+      --primary-glow: rgba(59, 130, 246, 0.15);
+      --dark: #0f172a;
+      --light: #f8fafc;
+      --glass-bg: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+    }
+    
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--dark);
+      color: var(--light);
+      overflow-x: hidden;
+    }
+    
+    /* Particles container */
+    #particles-js {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    /* Loading optimization */
+    .home-content {
+      flex: 1 1 0%;
+      position: relative;
+      min-width: 0;
+      z-index: 1;
+    }
+    
+    .home-content h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #ff4d6d 0%, #7b2cbf 50%, #ff7b00 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    #changer {
+      display: inline-block;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    /* Hide animation on mobile, show only "applications" */
+    @media (max-width: 768px) {
+      #changer {
+        display: none !important;
+      }
+      
+      .home-content h1::after {
+        content: "applications";
+        color: var(--primary);
+        font-weight: 700;
+        display: inline-block;
+      }
+      
+      .home-content h1 {
+        font-size: 2.5rem;
+      }
+    }
+    
+    /* Chatbot button critical styles */
+    #chatbot-toggle {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px var(--primary-glow);
+    }
+  </style>
+
+  <style>
+    /* Coming Soon Modal Styles */
+    .coming-soon-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(15px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .coming-soon-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .coming-soon-content {
+      background: linear-gradient(135deg, rgba(220, 20, 60, 0.9) 0%, rgba(178, 34, 34, 0.9) 100%);
+      border-radius: 1rem;
+      border: 1px solid rgba(255, 69, 0, 0.4);
+      box-shadow: 0 15px 40px rgba(220, 20, 60, 0.3);
+      backdrop-filter: blur(20px);
+      max-width: 350px;
+      width: 85%;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transform: scale(0.9) translateY(30px);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .coming-soon-modal.active .coming-soon-content {
+      transform: scale(1) translateY(0);
+    }
+
+    .coming-soon-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.8rem;
+      opacity: 0.9;
+    }
+
+    .coming-soon-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 0.4rem;
+      background: linear-gradient(135deg, #ffffff 0%, #ff6b6b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .coming-soon-subtitle {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.95);
+      margin-bottom: 0.8rem;
+      font-weight: 500;
+    }
+
+    .coming-soon-description {
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.4;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .coming-soon-btn {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 0.8rem 1.5rem;
+      border-radius: 0.6rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      font-size: 0.9rem;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15);
+    }
+
+    @media (max-width: 768px) {
+      .cta-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+        justify-items: center;
+        max-width: 400px;
+        margin: 1rem auto 0;
+      }
+
+      .cta-buttons .btn {
+        min-width: 100px;
+        max-width: 140px;
+        font-size: 0.85rem;
+        padding: 0.7rem 1rem;
+        width: 100%;
+      }
+
+      .btn-icon {
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cta-buttons {
+        gap: 0.6rem;
+        max-width: 300px;
+        margin: 1rem auto 0;
+      }
+
+      .cta-buttons .btn {
+        min-width: 80px;
+        max-width: 120px;
+        font-size: 0.8rem;
+        padding: 0.6rem 0.8rem;
+      }
+    }
+  </style>
+   
+</head>
+<body>
+  <button id="theme-toggle" aria-label="Toggle theme"></button>
+  
+  <!-- Chatbot Button -->
+  <button id="chatbot-toggle" aria-label="Open Chatbot">
+    <i class="fas fa-robot"></i>
+  </button>
+
+  <section id="home" class="section" style="position: relative; overflow: hidden;">
+    <div id="particles-js"></div>
+    <div class="container">
+      <div class="home-content">
+        <h1>Crafting digital <span id="changer">experiences</span></h1>
+    
+        <p>I'm Rishab, a passionate (for the description) Full Stack Developer with 1 year of experience building modern web applications (Failed 10 times, but still). I specialize in Python-based backend development with Flask & Django, while creating responsive frontends with HTML/CSS/JavaScript. My expertise extends to database design using MySQL/MongoDB(Used MongoDB only one time till now, but need to show), AI/ML implementations, and system architecture. I actually don't know much, but I'll make sure that I can answer your question even if I don't know anything about the question you ask, spitting random stuff like pointing to Twin Towers in 2025.</p>
+        
+        <div class="expertise-highlights">
+          <div class="highlight-item" data-expertise="fullstack">
+            <div class="highlight-icon">
+              <i class="fas fa-code"></i>
+              <div class="icon-glow"></div>
+            </div>
+            <div class="highlight-content">
+              <span class="highlight-title">Full Stack Development</span>
+              <div class="highlight-progress">
+                <div class="progress-fill" style="width: 95%"></div>
+              </div>
+              <span class="highlight-subtitle">Frontend & Backend</span>
+            </div>
+            <div class="highlight-stats">
+              <span class="stat-number">95%</span>
+              <span class="stat-label">Success</span>
+            </div>
+          </div>
+          
+          <div class="highlight-item" data-expertise="ai-ml">
+            <div class="highlight-icon">
+              <i class="fas fa-brain"></i>
+              <div class="icon-glow"></div>
+            </div>
+            <div class="highlight-content">
+              <span class="highlight-title">AI/ML Solutions</span>
+              <div class="highlight-progress">
+                <div class="progress-fill" style="width: 65%"></div>
+              </div>
+              <span class="highlight-subtitle">Machine Learning</span>
+            </div>
+            <div class="highlight-stats">
+              <span class="stat-number">65%</span>
+              <span class="stat-label">Success</span>
+            </div>
+          </div>
+          
+          <div class="highlight-item" data-expertise="database">
+            <div class="highlight-icon">
+              <i class="fas fa-database"></i>
+              <div class="icon-glow"></div>
+            </div>
+            <div class="highlight-content">
+              <span class="highlight-title">Database Design</span>
+              <div class="highlight-progress">
+                <div class="progress-fill" style="width: 90%"></div>
+              </div>
+              <span class="highlight-subtitle">SQL & NoSQL</span>
+            </div>
+            <div class="highlight-stats">
+              <span class="stat-number">90%</span>
+              <span class="stat-label">Success</span>
+            </div>
+          </div>
+          
+          <div class="highlight-item" data-expertise="responsive">
+            <div class="highlight-icon">
+              <i class="fas fa-mobile-alt"></i>
+              <div class="icon-glow"></div>
+            </div>
+            <div class="highlight-content">
+              <span class="highlight-title">Responsive Design</span>
+              <div class="highlight-progress">
+                <div class="progress-fill" style="width: 70%"></div>
+              </div>
+              <span class="highlight-subtitle">Mobile First</span>
+            </div>
+            <div class="highlight-stats">
+              <span class="stat-number">70%</span>
+              <span class="stat-label">Success</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="skills-list">
+          <span class="skill-tag">HTML/CSS/JS</span>
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">C/C++</span>
+          <span class="skill-tag">Java</span>
+          <span class="skill-tag">ASP.NET</span>
+          <span class="skill-tag">Flask</span>
+          <span class="skill-tag">Django</span>
+          <span class="skill-tag">MySQL</span>
+          <span class="skill-tag">MongoDB</span>
+          <span class="skill-tag">AI/ML</span>
+        </div>
+        
+        <div class="cta-buttons">
+          <a href="{{ url_for('blogs') }}" class="btn btn-primary">
+            <i class="fas fa-book btn-icon"></i> Blog
+          </a>
+          <a href="{{ url_for('resume') }}" class="btn btn-primary">
+            <i class="fas fa-file-alt btn-icon"></i> Resume
+          </a>
+          <a href="{{ url_for('certificates') }}" class="btn btn-primary">
+            <i class="fas fa-award btn-icon"></i> Certificates
+          </a>
+          <a href="#" class="btn btn-outline contact-trigger">
+            <i class="fas fa-paper-plane btn-icon"></i> Contact Me
+          </a>
+        </div>
+      </div>
+      
+      <div class="profile-section">
+        <div class="profile-circle">
+          <video muted loop playsinline preload="metadata">
+            <source src="{{ url_for('static', filename='Rishab_video.mp4') }}" type="video/mp4">
+            <source src="{{ url_for('static', filename='Rishab_video.webm') }}" type="video/webm">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+        
+        <!-- GitHub Stats Section -->
+        <div class="github-stats-section">
+          <div class="github-stats-container">
+            <div class="github-stat-card">
+              <span class="stat-number" id="totalRepos">15+</span>
+              <span class="stat-label">Repos</span>
+            </div>
+            
+            <div class="github-stat-card">
+              <span class="stat-number" id="totalCommits">200+</span>
+              <span class="stat-label">Commits</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects" class="section">
+    <div class="container">
+      <h2>Selected <span>Work</span></h2>
+      <div class="projects-container" id="projectsContainer"></div>
+      <div class="pagination-controls" id="paginationControls"></div>
+    </div>
+  </section>
+
+  <div class="contact-modal">
+    <div class="contact-modal-content">
+      <button class="contact-modal-close">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3>Get In <span>Touch</span></h3>
+      <div class="contact-links">
+        <a href="#" class="contact-link email-trigger">
+          <i class="fas fa-envelope"></i>
+          <span>rishabdixit402@gmail.com</span>
+        </a>
+        <a href="https://github.com/being-souL1230" target="_blank" class="contact-link">
+          <i class="fab fa-github"></i>
+          <span>Github Profile</span>
+        </a>
+        <a href="https://www.linkedin.com/in/rishab-dixit-6497aa357" target="_blank" class="contact-link">
+          <i class="fab fa-linkedin"></i>
+          <span>Linkedin Profile</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Dialog -->
+  <div class="email-dialog">
+    <div class="email-dialog-content">
+      <button class="email-dialog-close">
+        <i class="fas fa-times"></i>
+      </button>
+      <h3>Send <span>Email</span></h3>
+      <form class="email-form" id="emailForm">
+        <div class="form-group">
+          <input type="text" name="name" placeholder="Your Name" required>
+        </div>
+        <div class="form-group">
+          <input type="email" name="email" placeholder="Your Email" required>
+        </div>
+        <div class="form-group">
+          <input type="text" name="subject" placeholder="Subject" required>
+        </div>
+        <div class="form-group">
+          <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" id="emailSubmitBtn">
+          <i class="fas fa-paper-plane"></i> Send Email
+        </button>
+      </form>
+      <div id="emailMessage" style="display: none; margin-top: 15px; padding: 10px; border-radius: 6px; text-align: center;"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay">
+    <div class="modal">
+      <button class="modal-close">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="modal-header">
+        <h3 id="modalTitle">Project Title</h3>
+        <div class="tags" id="modalTags"></div>
+      </div>
+      <div class="modal-content">
+        <div class="modal-description" id="modalDescription"></div>
+        <div class="modal-tech">
+          <h4>Tech Stack</h4>
+          <ul id="modalTech"></ul>
+        </div>
+        <div class="modal-features">
+          <h4>Key Features</h4>
+          <ul id="modalFeatures"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tag Tooltip Modal -->
+  <div class="tag-tooltip">
+    <div class="tag-tooltip-content">
+      <button class="tag-tooltip-close">
+        <i class="fas fa-times"></i>
+      </button>
+      <h4 id="tooltipTitle"><i id="tooltipIcon"></i><span id="tooltipName"></span></h4>
+      <p id="tooltipDescription"></p>
+      <div class="skill-level">
+        <span>Skill Level:</span>
+        <div class="skill-bars" id="skillBars"></div>
+      </div>
+      <div class="usage" id="tooltipUsage"></div>
+    </div>
+  </div>
+
+  <!-- Chatbot Modal -->
+  <div class="chatbot-modal" id="chatbotModal">
+    <div class="chatbot-container">
+      <div class="chatbot-header">
+        <div class="bot-avatar">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="bot-info">
+          <h3>Rishab's AI Assistant</h3>
+          <span class="bot-status">Online</span>
+        </div>
+        <button class="chatbot-close" id="chatbotClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="chatbot-messages" id="chatbotMessages">
+        <div class="message bot-message">
+          <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="message-content">
+            <p>Hi! I'm Rishab's AI assistant. Ask me anything about his skills, projects, or experience! 🚀</p>
+            <span class="message-time">Just now</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chatbot-quick-actions">
+        <button class="quick-btn" onclick="sendQuickMessage('Tell me about your skills')">
+          <i class="fas fa-code"></i> Skills
+        </button>
+        <button class="quick-btn" onclick="sendQuickMessage('Show me your projects')">
+          <i class="fas fa-project-diagram"></i> Projects
+        </button>
+        <button class="quick-btn" onclick="sendQuickMessage('What is your experience?')">
+          <i class="fas fa-briefcase"></i> Experience
+        </button>
+        <button class="quick-btn" onclick="sendQuickMessage('How can I contact you?')">
+          <i class="fas fa-envelope"></i> Contact
+        </button>
+      </div>
+      
+      <div class="chatbot-input">
+        <input type="text" id="chatbotInput" placeholder="Ask me anything about Rishab..." maxlength="200">
+        <button id="chatbotSend">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skill Analysis Modal -->
+  <div class="skill-analysis-modal">
+    <div class="skill-analysis-content">
+      <button class="skill-analysis-close">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="skill-analysis-header">
+        <h4 id="skillAnalysisTitle"><i id="skillAnalysisIcon"></i><span id="skillAnalysisName"></span></h4>
+      </div>
+      <div class="skill-analysis-body">
+        <div class="skill-details">
+          <h5>Skill Details</h5>
+          <p id="skillAnalysisDescription"></p>
+          <div class="skill-metrics">
+            <div class="metric">
+              <span class="metric-label">Experience Level:</span>
+              <span class="metric-value" id="experienceLevel"></span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Success Rate:</span>
+              <span class="metric-value" id="successRate"></span>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Projects Used:</span>
+              <span class="metric-value" id="projectsUsed"></span>
+            </div>
+          </div>
+        </div>
+        <div class="skill-visualization">
+          <h5>Performance Analysis</h5>
+          <div class="skill-level-indicator">
+            <div class="level-icon" id="levelIcon"></div>
+            <div class="level-description" id="levelDescription"></div>
+          </div>
+
+
+          
+          <div class="skill-circles">
+            <div class="circle-item">
+              <div class="circle-progress" id="practicalCircle">
+                <div class="circle-fill"></div>
+                <div class="circle-content">
+                  <i class="fas fa-tools"></i>
+                  <span class="circle-percentage" id="practicalCirclePercent">0%</span>
+                </div>
+              </div>
+              <span class="circle-label">Practical</span>
+            </div>
+            <div class="circle-item">
+              <div class="circle-progress" id="theoreticalCircle">
+                <div class="circle-fill"></div>
+                <div class="circle-content">
+                  <i class="fas fa-book"></i>
+                  <span class="circle-percentage" id="theoreticalCirclePercent">0%</span>
+                </div>
+              </div>
+              <span class="circle-label">Theory</span>
+            </div>
+            <div class="circle-item">
+              <div class="circle-progress" id="problemCircle">
+                <div class="circle-fill"></div>
+                <div class="circle-content">
+                  <i class="fas fa-lightbulb"></i>
+                  <span class="circle-percentage" id="problemCirclePercent">0%</span>
+                </div>
+              </div>
+              <span class="circle-label">Problem Solving</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+  <script>
+    // Optimized Particle Effect - Lazy Load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Delay particle initialization for better initial load
+      setTimeout(() => {
+        initializeParticles();
+      }, 500);
+    });
+
+    function initializeParticles() {
+      console.log('Initializing optimized particles...');
+      
+      // Get the container
+      const container = document.getElementById('particles-js');
+      if (!container) {
+        console.error('Particles container not found');
+        return;
+      }
+
+      // Create canvas
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      container.appendChild(canvas);
+
+      // Set canvas size
+      function resizeCanvas() {
+        canvas.width = container.offsetWidth;
+        canvas.height = container.offsetHeight;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      // Particle class
+      class Particle {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 2 + 1;
+          this.speedX = Math.random() * 2 - 1;
+          this.speedY = Math.random() * 2 - 1;
+          this.color = '#3b82f6';
+        }
+
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+
+          // Bounce off edges
+          if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+          if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        }
+
+        draw() {
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Create particles - Optimized count
+      const particles = [];
+      const isMobile = window.innerWidth <= 768;
+      const particleCount = isMobile ? 15 : Math.min(50, Math.floor((canvas.width * canvas.height) / 15000));
+      
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+      }
+
+      // Mouse interaction
+      let mouseX = null;
+      let mouseY = null;
+      
+      canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+      });
+
+      canvas.addEventListener('mouseleave', () => {
+        mouseX = null;
+        mouseY = null;
+      });
+
+      // Optimized Animation loop with throttling
+      let lastTime = 0;
+      const targetFPS = isMobile ? 30 : 60;
+      const frameInterval = 1000 / targetFPS;
+      
+      function animate(currentTime) {
+        if (currentTime - lastTime < frameInterval) {
+          requestAnimationFrame(animate);
+          return;
+        }
+        lastTime = currentTime;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Update and draw particles
+        particles.forEach(particle => {
+          // Simplified mouse interaction for better performance
+          if (mouseX !== null && mouseY !== null) {
+            const dx = mouseX - particle.x;
+            const dy = mouseY - particle.y;
+            const distance = dx * dx + dy * dy; // Skip sqrt for performance
+            
+            if (distance < 10000) { // 100^2
+              particle.x -= dx * 0.03;
+              particle.y -= dy * 0.03;
+            }
+          }
+          
+          particle.update();
+          particle.draw();
+        });
+        
+        // Draw connections
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const distance = dx * dx + dy * dy; // Skip sqrt for performance
+            
+            if (distance < 10000) { // 100^2
+              ctx.strokeStyle = `rgba(59, 130, 246, ${1 - distance/10000})`;
+              ctx.lineWidth = 0.5;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+        
+        requestAnimationFrame(animate);
+      }
+      // Start animation
+      requestAnimationFrame(animate);
+      console.log('Optimized particles initialized');
+    }
+  </script>
+
+  <script>
+    // Simple GitHub Stats (Static Values)
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set static values - no API calls needed
+      document.getElementById('totalRepos').textContent = '15+';
+      document.getElementById('totalCommits').textContent = '200+';
+    });
+  </script>
+
+  <script>
+    // Chatbot Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const chatbotToggle = document.getElementById('chatbot-toggle');
+      const chatbotModal = document.getElementById('chatbotModal');
+      const chatbotClose = document.getElementById('chatbotClose');
+      const chatbotInput = document.getElementById('chatbotInput');
+      const chatbotSend = document.getElementById('chatbotSend');
+      const chatbotMessages = document.getElementById('chatbotMessages');
+
+      // Toggle chatbot
+      chatbotToggle.addEventListener('click', function() {
+        chatbotModal.classList.toggle('active');
+        if (chatbotModal.classList.contains('active')) {
+          chatbotInput.focus();
+          // Scroll to bottom when opening chatbot
+          setTimeout(() => {
+            scrollToBottom();
+          }, 300);
+        }
+      });
+
+      // Close chatbot
+      chatbotClose.addEventListener('click', function() {
+        chatbotModal.classList.remove('active');
+      });
+
+      // Send message
+      function sendMessage() {
+        const message = chatbotInput.value.trim();
+        if (!message) return;
+
+        // Add user message
+        addMessage(message, 'user');
+        chatbotInput.value = '';
+
+        // Show typing indicator
+        showTypingIndicator();
+
+        // Generate bot response
+        setTimeout(() => {
+          hideTypingIndicator();
+          const response = generateBotResponse(message);
+          addMessage(response, 'bot');
+        }, 1000 + Math.random() * 1000);
+      }
+
+      // Add message to chat with smooth animations
+      function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        
+        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        messageDiv.innerHTML = `
+          <div class="message-avatar">
+            <i class="fas fa-${sender === 'bot' ? 'robot' : 'user'}"></i>
+          </div>
+          <div class="message-content">
+            <p>${text}</p>
+            <span class="message-time">${time}</span>
+          </div>
+        `;
+        
+        chatbotMessages.appendChild(messageDiv);
+        
+        // Force smooth scroll to bottom with delay for animation
+        setTimeout(() => {
+          scrollToBottom();
+        }, 100);
+      }
+
+      // Smooth scroll to bottom function
+      function scrollToBottom() {
+        chatbotMessages.scrollTo({
+          top: chatbotMessages.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+
+      // Show typing indicator with smooth scroll
+      function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot-message typing-indicator';
+        typingDiv.id = 'typingIndicator';
+        
+        typingDiv.innerHTML = `
+          <div class="message-avatar">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="message-content">
+            <p>Typing<span class="dots"></span></p>
+          </div>
+        `;
+        
+        chatbotMessages.appendChild(typingDiv);
+        
+        // Smooth scroll to show typing indicator
+        setTimeout(() => {
+          scrollToBottom();
+        }, 100);
+      }
+
+      // Hide typing indicator
+      function hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+          typingIndicator.remove();
+        }
+      }
+
+      // Smart Bot Response Generator
+      function generateBotResponse(message) {
+        const msg = message.toLowerCase();
+        
+        // Skills related
+        if (msg.includes('skill') || msg.includes('technology') || msg.includes('tech')) {
+          return "🚀 Rishab is skilled in:<br>• <strong>Frontend:</strong> HTML, CSS, JavaScript, React<br>• <strong>Backend:</strong> Python, Flask, Django<br>• <strong>Database:</strong> MySQL, MongoDB<br>• <strong>Other:</strong> AI/ML, Git, ASP.NET";
+        }
+        
+        // Projects related
+        if (msg.includes('project') || msg.includes('work') || msg.includes('portfolio')) {
+          return "💼 Check out Rishab's amazing projects:<br>• <strong>Mood Detector:</strong> AI-powered sentiment analysis<br>• <strong>Pass Predictor:</strong> ML model for academic predictions<br>• <strong>Resume Maker:</strong> Dynamic resume generator<br>• <strong>Chat App:</strong> Real-time messaging system<br><br>Visit the Projects section to see demos! 🎯";
+        }
+        
+        // Experience related
+        if (msg.includes('experience') || msg.includes('work') || msg.includes('job')) {
+          return "💪 Rishab has 1+ year of experience in:<br>• Full Stack Web Development<br>• Python Backend Development<br>• AI/ML Implementation<br>• Database Design & Management<br><br>He's passionate about creating innovative solutions! 🔥";
+        }
+        
+        // Contact related
+        if (msg.includes('contact') || msg.includes('email') || msg.includes('reach')) {
+          return "📧 You can reach Rishab at:<br>• <strong>Email:</strong> rishabdixit402@gmail.com<br>• <strong>GitHub:</strong> github.com/being-souL1230<br>• <strong>LinkedIn:</strong> linkedin.com/in/rishab-dixit-6497aa357<br><br>Feel free to connect! 🤝";
+        }
+        
+        // Education related
+        if (msg.includes('education') || msg.includes('study') || msg.includes('college')) {
+          return "🎓 Rishab is currently pursuing his studies while actively working on real-world projects. He believes in practical learning and has built multiple applications to strengthen his skills!";
+        }
+        
+        // AI/ML related
+        if (msg.includes('ai') || msg.includes('ml') || msg.includes('machine learning') || msg.includes('artificial intelligence')) {
+          return "🤖 Rishab has hands-on experience with AI/ML:<br>• <strong>Sentiment Analysis:</strong> NLP with TF-IDF & Random Forest<br>• <strong>Predictive Models:</strong> Academic performance prediction<br>• <strong>Data Processing:</strong> Feature engineering & model training<br><br>Check out his Mood Detector demo! 🧠";
+        }
+        
+        // Greeting responses
+        if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
+          return "👋 Hello! I'm Rishab's AI assistant. I can tell you about his skills, projects, experience, and how to contact him. What would you like to know? 😊";
+        }
+        
+        // Thank you responses
+        if (msg.includes('thank') || msg.includes('thanks')) {
+          return "🙏 You're welcome! Feel free to ask me anything else about Rishab's work or reach out to him directly. Have a great day! ✨";
+        }
+        
+        // Default responses for unmatched queries
+        const defaultResponses = [
+          "🤔 That's an interesting question! You can ask me about Rishab's skills, projects, experience, or contact information. What specific area interests you?",
+          "💡 I'd love to help! Try asking about Rishab's technical skills, his portfolio projects, or how to get in touch with him.",
+          "🎯 I'm here to share info about Rishab! Ask me about his programming languages, recent projects, or professional background.",
+          "✨ Great question! I can tell you about Rishab's development experience, his AI/ML projects, or his contact details. What would you like to explore?"
+        ];
+        
+        return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+      }
+
+      // Quick message function with smooth interaction
+      window.sendQuickMessage = function(message) {
+        // Ensure chatbot is open
+        if (!chatbotModal.classList.contains('active')) {
+          chatbotModal.classList.add('active');
+          setTimeout(() => {
+            scrollToBottom();
+            chatbotInput.value = message;
+            sendMessage();
+          }, 300);
+        } else {
+          chatbotInput.value = message;
+          sendMessage();
+        }
+      };
+
+      // Event listeners
+      chatbotSend.addEventListener('click', sendMessage);
+      chatbotInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          sendMessage();
+        }
+      });
+
+      // Close chatbot when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!chatbotModal.contains(e.target) && !chatbotToggle.contains(e.target)) {
+          chatbotModal.classList.remove('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

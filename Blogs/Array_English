@@ -1,0 +1,121 @@
+{
+  "slug": "array-fundamentals",
+  "language": "English",
+  "title": "Array Fundamentals: Contiguous Storage Explained",
+  "summary": "Learn how arrays allocate contiguous memory, why indexing starts at zero, and how loops simplify repetitive assignments in C and C++.",
+  "author": "Rishab Dixit",
+  "published_on": "2025-09-27",
+  "read_time": "6 min",
+  "tags": ["Data Structures", "C", "C++"],
+  "hero_quote": "Build structured storage from a single variable onward and let loops handle the repetition for you.",
+  "highlights": [
+    "Arrays reserve contiguous memory so related values remain side-by-side for fast access.",
+    "Indexing begins at 0, which means the fifth value lives at `arr[4]`.",
+    "Loops turn repetitive assignments and prints into compact, scalable code."
+  ],
+  "sections": [
+    {
+      "heading": "From a Single Value to Structured Storage",
+      "content": [
+        "An array is a data structure that keeps values next to each other in memory, which makes access predictable and fast.",
+        "Start with a single value: when you declare a variable such as `number`, you ask the program for a labeled memory block that currently holds one integer value."
+      ],
+      "code_samples": [
+        {
+          "label": "C++",
+          "language": "cpp",
+          "code": "int number = 10;"
+        }
+      ]
+    },
+    {
+      "heading": "Declaring an Array",
+      "content": [
+        "Arrays let you reserve multiple labeled slots in one go. Each slot is accessible with an index.",
+        "The general syntax uses the type, a name, and the number of elements you want to store."
+      ],
+      "code_samples": [
+        {
+          "label": "C/C++",
+          "language": "cpp",
+          "code": "int variable_name[size];"
+        },
+        {
+          "label": "Example",
+          "language": "cpp",
+          "code": "int arr[5]; // declaration of an array with 5 integers"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "Requesting 5 slots gives you indices 0 through 4 (that’s n - 1). Accessing `arr[5]` is out of bounds."
+        }
+      ]
+    },
+    {
+      "heading": "Populating the Array",
+      "content": [
+        "Manual assignments work for a few values, but they become tedious as the array grows.",
+        "Loops excel at repetitive work: use them to generate patterns or handle user input." 
+      ],
+      "code_samples": [
+        {
+          "label": "Manual Assignment",
+          "language": "cpp",
+          "code": "arr[0] = 10;\narr[1] = 20;\narr[2] = 30;\narr[3] = 40;\narr[4] = 50;"
+        },
+        {
+          "label": "Loop Generated Values",
+          "language": "cpp",
+          "code": "for (int i = 0; i < 5; i++) {\n    arr[i] = (i + 1) * 10;\n}"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "Replace the assignment inside the loop with `cin >> arr[i];` when you want to accept user input."
+        }
+      ]
+    },
+    {
+      "heading": "Iterating to Print Values",
+      "content": [
+        "When you iterate over the indices and print each element, adding a space keeps the output readable."
+      ],
+      "code_samples": [
+        {
+          "label": "Console Output",
+          "language": "cpp",
+          "code": "for (int i = 0; i < 5; i++) {\n    cout << arr[i] << \" \";\n}"
+        }
+      ]
+    },
+    {
+      "heading": "Complete Example: Hardcoded Values",
+      "content": [
+        "The following C program stores values manually and prints them one by one."
+      ],
+      "code_samples": [
+        {
+          "label": "C Program",
+          "language": "c",
+          "code": "#include <stdio.h>\n\nint main() {\n    int arr[5];\n\n    arr[0] = 10;\n    arr[1] = 20;\n    arr[2] = 30;\n    arr[3] = 40;\n    arr[4] = 50;\n\n    printf(\"%d \", arr[0]);\n    printf(\"%d \", arr[1]);\n    printf(\"%d \", arr[2]);\n    printf(\"%d \", arr[3]);\n    printf(\"%d \", arr[4]);\n\n    return 0;\n}" 
+        }
+      ]
+    },
+    {
+      "heading": "Complete Example: User Input + Output",
+      "content": [
+        "Here’s the streamlined version that reads values dynamically and prints them with a loop." 
+      ],
+      "code_samples": [
+        {
+          "label": "Optimized C Program",
+          "language": "c",
+          "code": "#include <stdio.h>\n\nint main() {\n    int arr[5];\n\n    for (int i = 0; i < 5; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n\n    for (int i = 0; i < 5; i++) {\n        printf(\"%d \", arr[i]);\n    }\n\n    return 0;\n}" 
+        }
+      ]
+    }
+  ]
+}

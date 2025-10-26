@@ -1,0 +1,121 @@
+{
+  "slug": "array-fundamentals",
+  "language": "Hinglish",
+  "title": "Array Fundamentals: Hinglish Breakdown",
+  "summary": "Array kya hota hai? Contiguous memory, zero-based indexing aur loops se repetitive kaam kaise simplify hota hai yaha samjho.",
+  "author": "Rishab Dixit",
+  "published_on": "2025-09-27",
+  "read_time": "6 min",
+  "tags": ["Data Structures", "C", "C++"],
+  "hero_quote": "Single value se lekar structured shelf tak ka safar array ke bina mushkil hai.",
+  "highlights": [
+    "Array contiguous memory deta hai jisse related values ek saath rahte hain.",
+    "Index hamesha 0 se start hota hai, fifth element `arr[4]` hota hai.",
+    "Loop se repetitive assignments aur output ekdum compact ho jaata hai."
+  ],
+  "sections": [
+    {
+      "heading": "Single Value se Structured Shelf tak",
+      "content": [
+        "Array ek aisa data structure hai jo values ko memory mein side-by-side rakhta hai, access simple ho jaata hai.",
+        "Ek single value store karne ke liye `number` jaise variable declare karte ho jo ek labeled memory block provide karta hai."
+      ],
+      "code_samples": [
+        {
+          "label": "C++",
+          "language": "cpp",
+          "code": "int number = 10;"
+        }
+      ]
+    },
+    {
+      "heading": "Array Declare Karna",
+      "content": [
+        "Array declare karte waqt tum ek saath multiple slots reserve kar lete ho, har slot ko index se access kar sakte ho.",
+        "Syntax mein data type, naam aur kitne elements chahiye wo specify karte ho."
+      ],
+      "code_samples": [
+        {
+          "label": "C/C++",
+          "language": "cpp",
+          "code": "int variable_name[size];"
+        },
+        {
+          "label": "Example",
+          "language": "cpp",
+          "code": "int arr[5]; // ye sirf declaration hai, initialization nahi"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "warning",
+          "text": "5 slots maango aur tumhe index 0 se 4 tak milenge. `arr[5]` access karoge toh undefined behavior ho sakta hai."
+        }
+      ]
+    },
+    {
+      "heading": "Array mein Value Store Karna",
+      "content": [
+        "Har index pe manually value daal sakte ho lekin array bada ho toh ye kaam tedious ho jaata hai.",
+        "Loop repeat hone wale kaam ko handle karta hai—pattern generate karo ya user input lo."
+      ],
+      "code_samples": [
+        {
+          "label": "Manual Assignment",
+          "language": "cpp",
+          "code": "arr[0] = 10;\narr[1] = 20;\narr[2] = 30;\narr[3] = 40;\narr[4] = 50;"
+        },
+        {
+          "label": "Loop Generated Values",
+          "language": "cpp",
+          "code": "for (int i = 0; i < 5; i++) {\n    arr[i] = (i + 1) * 10;\n}"
+        }
+      ],
+      "callouts": [
+        {
+          "type": "tip",
+          "text": "User input lena hai toh loop ke andar `cin >> arr[i];` likh do aur same structure reuse karo."
+        }
+      ]
+    },
+    {
+      "heading": "Array Print Karna",
+      "content": [
+        "Indices pe iterate karke jab values print karte ho toh space add karne se output readable dikhta hai."
+      ],
+      "code_samples": [
+        {
+          "label": "Console Output",
+          "language": "cpp",
+          "code": "for (int i = 0; i < 5; i++) {\n    cout << arr[i] << \" \";\n}"
+        }
+      ]
+    },
+    {
+      "heading": "Complete Example: Hardcoded Values",
+      "content": [
+        "Neeche wala C program har value manually store karta hai aur fir print karta hai."
+      ],
+      "code_samples": [
+        {
+          "label": "C Program",
+          "language": "c",
+          "code": "#include <stdio.h>\n\nint main() {\n    int arr[5];\n\n    arr[0] = 10;\n    arr[1] = 20;\n    arr[2] = 30;\n    arr[3] = 40;\n    arr[4] = 50;\n\n    printf(\"%d \", arr[0]);\n    printf(\"%d \", arr[1]);\n    printf(\"%d \", arr[2]);\n    printf(\"%d \", arr[3]);\n    printf(\"%d \", arr[4]);\n\n    return 0;\n}" 
+        }
+      ]
+    },
+    {
+      "heading": "Complete Example: User Input + Output",
+      "content": [
+        "Optimized version loop ka use karke pehle values leta hai aur phir unhe print karta hai."
+      ],
+      "code_samples": [
+        {
+          "label": "Optimized C Program",
+          "language": "c",
+          "code": "#include <stdio.h>\n\nint main() {\n    int arr[5];\n\n    for (int i = 0; i < 5; i++) {\n        scanf(\"%d\", &arr[i]);\n    }\n\n    for (int i = 0; i < 5; i++) {\n        printf(\"%d \", arr[i]);\n    }\n\n    return 0;\n}" 
+        }
+      ]
+    }
+  ]
+}
