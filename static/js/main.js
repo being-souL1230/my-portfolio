@@ -449,46 +449,25 @@
         emailDialog.classList.remove('active');
         document.body.style.overflow = 'auto';
       }
-      emailForm.addEventListener('submit', async (e) => {
+      emailForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        console.log('Email form submitted!');
-        const formData = new FormData(emailForm);
-        const data = {
-          name: formData.get('name'),
-          email: formData.get('email'),
-          subject: formData.get('subject'),
-          message: formData.get('message')
-        };
-        console.log('Form data:', data);
-        emailSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-        emailSubmitBtn.disabled = true;
-        emailMessage.style.display = 'none';
-        try {
-          const response = await fetch('/api/contact', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          });
-          const result = await response.json();
-          emailMessage.style.display = 'block';
-          emailMessage.style.background = result.success ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)';
-          emailMessage.style.color = result.success ? '#22c55e' : '#ef4444';
-          emailMessage.style.border = result.success ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(239,68,68,0.3)';
-          emailMessage.textContent = result.message;
-          if (result.success) {
-            emailForm.reset();
-            setTimeout(closeEmailDialog, 2000);
-          }
-        } catch (error) {
-          emailMessage.style.display = 'block';
-          emailMessage.style.background = 'rgba(239,68,68,0.1)';
-          emailMessage.style.color = '#ef4444';
-          emailMessage.style.border = '1px solid rgba(239,68,68,0.3)';
-          emailMessage.textContent = 'Network error. Please try again.';
-        } finally {
-          emailSubmitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Email';
-          emailSubmitBtn.disabled = false;
-        }
+        
+        // Show message directing to LinkedIn
+        emailMessage.style.display = 'block';
+        emailMessage.style.background = 'rgba(239,68,68,0.1)';
+        emailMessage.style.color = '#ef4444';
+        emailMessage.style.border = '1px solid rgba(239,68,68,0.3)';
+        emailMessage.style.padding = '15px';
+        emailMessage.style.borderRadius = '8px';
+        emailMessage.style.marginTop = '15px';
+        emailMessage.innerHTML = `
+          <p style="margin: 0 0 10px 0;">⚠️ Email submission is currently unavailable.</p>
+          <p style="margin: 0;">Please contact me on <a href="https://www.linkedin.com/in/rishab-dixit-6497aa357" 
+          target="_blank" style="color: #3b82f6; text-decoration: underline;">LinkedIn</a> instead.</p>
+        `;
+        
+        // Clear the form
+        emailForm.reset();
       });
 
       // Project modals
@@ -1393,16 +1372,3 @@
 
   // Start loop
   setInterval(loopTextChange, 3000);
-
-
-
-
-
-
-
-
-
-
-
-
-
