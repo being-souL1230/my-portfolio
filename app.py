@@ -11,6 +11,7 @@ import hashlib
 
 app = Flask(__name__)
 
+
 # Configuration
 app.config['SECRET_KEY'] = 'rishab-portfolio-2025-secret-key'
 app.config['COMPRESS_MIMETYPES'] = [
