@@ -1264,19 +1264,39 @@
       // --- PROJECT CARD SCROLL ANIMATION ---
       function animateProjectCardsOnScroll() {
         const cards = document.querySelectorAll('.project-card');
-        function onScroll() {
-          const trigger = window.innerHeight * 0.92;
+        let ticking = false;
+        
+        // Cache the trigger position
+        let trigger = window.innerHeight * 0.92;
+        
+        // Update trigger on resize
+        window.addEventListener('resize', () => {
+          trigger = window.innerHeight * 0.92;
+        });
+
+        function update() {
+          ticking = false;
           let delay = 0;
           cards.forEach((card, idx) => {
+            if (card.classList.contains('visible')) return;
+            
             const rect = card.getBoundingClientRect();
-            if (rect.top < trigger && !card.classList.contains('visible')) {
+            if (rect.top < trigger) {
               setTimeout(() => card.classList.add('visible'), delay);
               delay += 120; // staggered entrance
             }
           });
         }
-        window.addEventListener('scroll', onScroll);
-        onScroll();
+
+        function onScroll() {
+          if (!ticking) {
+            window.requestAnimationFrame(update);
+            ticking = true;
+          }
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        update(); // Initial check
       }
       animateProjectCardsOnScroll();
 
