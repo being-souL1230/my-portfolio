@@ -1263,42 +1263,76 @@
       addRippleEffectToButtons();
       // --- PROJECT CARD SCROLL ANIMATION ---
       function animateProjectCardsOnScroll() {
-        const cards = document.querySelectorAll('.project-card');
+        const cards = Array.from(document.querySelectorAll('.project-card'));
         let ticking = false;
+        let rafId = null;
         
-        // Cache the trigger position
+        // Cache the trigger position with debounce
         let trigger = window.innerHeight * 0.92;
         
-        // Update trigger on resize
-        window.addEventListener('resize', () => {
-          trigger = window.innerHeight * 0.92;
-        });
+        // Debounced resize handler
+        const handleResize = () => {
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(() => {
+            trigger = window.innerHeight * 0.92;
+          });
+        };
+
+        // Single passive event listener for resize
+        const resizeOptions = { passive: true };
+        window.addEventListener('resize', handleResize, resizeOptions);
 
         function update() {
           ticking = false;
           let delay = 0;
-          cards.forEach((card, idx) => {
-            if (card.classList.contains('visible')) return;
-            
-            const rect = card.getBoundingClientRect();
-            if (rect.top < trigger) {
-              setTimeout(() => card.classList.add('visible'), delay);
-              delay += 120; // staggered entrance
-            }
+          
+          // Batch all DOM reads first
+          const cardData = cards.map(card => ({
+            element: card,
+            rect: card.getBoundingClientRect(),
+            isVisible: card.classList.contains('visible')
+          }));
+          
+          // Then batch all DOM writes
+          requestAnimationFrame(() => {
+            cardData.forEach(({ element, rect, isVisible }) => {
+              if (isVisible) return;
+              
+              if (rect.top < trigger) {
+                setTimeout(() => {
+                  element.classList.add('visible');
+                }, delay);
+                delay += 120; // staggered entrance
+              }
+            });
           });
         }
 
-        function onScroll() {
+        const onScroll = () => {
           if (!ticking) {
-            window.requestAnimationFrame(update);
+            requestAnimationFrame(update);
             ticking = true;
           }
-        }
+        };
 
+        // Use passive scroll listener
         window.addEventListener('scroll', onScroll, { passive: true });
-        update(); // Initial check
+        
+        // Initial check with requestAnimationFrame
+        requestAnimationFrame(update);
+
+        // Cleanup function
+        return () => {
+          window.removeEventListener('resize', handleResize, resizeOptions);
+          window.removeEventListener('scroll', onScroll);
+          if (rafId) cancelAnimationFrame(rafId);
+        };
       }
-      animateProjectCardsOnScroll();
+      
+      // Initialize with cleanup handler
+      const cleanupProjectScroll = animateProjectCardsOnScroll();
+      // If you need to clean up later (e.g., in a SPA)
+      // window.cleanupProjectScroll = cleanupProjectScroll;
 
       // Highlight modal data (example, replace with your real data)
       const highlightData = {
