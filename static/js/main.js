@@ -323,11 +323,13 @@
         const totalPages = Math.ceil(projects.length / projectsPerPage);
 
         paginationContainer.innerHTML = `
-          <button class="pagination-btn prev-btn" ${currentPage === 1 ? 'disabled' : ''} data-action="prev">
-            <i class="fas fa-angle-left"></i>
+          <button class="pagination-btn prev-btn" ${currentPage === 1 ? 'disabled' : ''} data-action="prev" aria-label="Previous page">
+            <i class="fas fa-angle-left" aria-hidden="true"></i>
+            <span class="sr-only">Previous page</span>
           </button>
-          <button class="pagination-btn next-btn" ${currentPage === totalPages ? 'disabled' : ''} data-action="next">
-            <i class="fas fa-angle-right"></i>
+          <button class="pagination-btn next-btn" ${currentPage === totalPages ? 'disabled' : ''} data-action="next" aria-label="Next page">
+            <i class="fas fa-angle-right" aria-hidden="true"></i>
+            <span class="sr-only">Next page</span>
           </button>
         `;
       }
