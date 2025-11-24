@@ -1248,70 +1248,46 @@
         });
       }
       addRippleEffectToButtons();
-      // --- PROJECT CARD SCROLL ANIMATION ---
+      // --- PROJECT CARD SCROLL ANIMATION (Optimized) ---
       function animateProjectCardsOnScroll() {
-        const cards = Array.from(document.querySelectorAll('.project-card'));
-        let ticking = false;
+        const cards = document.querySelectorAll('.project-card:not(.visible)');
+        if (cards.length === 0) return () => {}; // No cards to animate
+
         let rafId = null;
-        
-        // Cache the trigger position with debounce
-        let trigger = window.innerHeight * 0.92;
-        
-        // Debounced resize handler
-        const handleResize = () => {
-          if (rafId) cancelAnimationFrame(rafId);
-          rafId = requestAnimationFrame(() => {
-            trigger = window.innerHeight * 0.92;
-          });
+        const observerOptions = {
+          root: null,
+          rootMargin: '0px',
+          threshold: 0.1 // Trigger when 10% of the card is visible
         };
 
-        // Single passive event listener for resize
-        const resizeOptions = { passive: true };
-        window.addEventListener('resize', handleResize, resizeOptions);
-
-        function update() {
-          ticking = false;
-          let delay = 0;
+        // Intersection Observer callback
+        const handleIntersect = (entries, observer) => {
+          if (rafId) cancelAnimationFrame(rafId);
           
-          // Batch all DOM reads first
-          const cardData = cards.map(card => ({
-            element: card,
-            rect: card.getBoundingClientRect(),
-            isVisible: card.classList.contains('visible')
-          }));
-          
-          // Then batch all DOM writes
-          requestAnimationFrame(() => {
-            cardData.forEach(({ element, rect, isVisible }) => {
-              if (isVisible) return;
-              
-              if (rect.top < trigger) {
+          rafId = requestAnimationFrame(() => {
+            entries.forEach((entry, index) => {
+              if (entry.isIntersecting) {
+                // Add staggered animation with delay based on index
                 setTimeout(() => {
-                  element.classList.add('visible');
-                }, delay);
-                delay += 120; // staggered entrance
+                  entry.target.classList.add('visible');
+                }, index * 120); // 120ms delay between each card
+                
+                // Stop observing once the card is visible
+                observer.unobserve(entry.target);
               }
             });
           });
-        }
-
-        const onScroll = () => {
-          if (!ticking) {
-            requestAnimationFrame(update);
-            ticking = true;
-          }
         };
 
-        // Use passive scroll listener
-        window.addEventListener('scroll', onScroll, { passive: true });
-        
-        // Initial check with requestAnimationFrame
-        requestAnimationFrame(update);
+        // Create observer
+        const observer = new IntersectionObserver(handleIntersect, observerOptions);
+
+        // Observe each card
+        cards.forEach(card => observer.observe(card));
 
         // Cleanup function
         return () => {
-          window.removeEventListener('resize', handleResize, resizeOptions);
-          window.removeEventListener('scroll', onScroll);
+          observer.disconnect();
           if (rafId) cancelAnimationFrame(rafId);
         };
       }
