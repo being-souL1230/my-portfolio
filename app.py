@@ -8,6 +8,7 @@ import tempfile
 from datetime import datetime
 import markdown
 import hashlib
+import logging
 
 app = Flask(__name__)
 
@@ -812,56 +813,81 @@ def execute_compiled(language, file_path, temp_dir):
 @app.route("/api/pass-predict", methods=["POST"])
 def api_pass_predict():
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True)
+        if not data:
+            return jsonify({'success': False, 'message': 'Invalid or empty JSON.'}), 400
 
-        # Get user input
-        study_hours = data.get('study_hours')
-        sleep_hours = data.get('sleep_hours')
-        attendance = data.get('attendance')
-        class_avg_score = data.get('class_avg_score')
-        student_test_score = data.get('student_test_score')
-        student_assignment_score = data.get('student_assignment_score')
-        num_failed_before = data.get('num_failed_before')
-        participation_score = data.get('participation_score')
+        # required fields and expected types
+        required = {
+            'study_hours': float,
+            'sleep_hours': float,
+            'attendance': float,
+            'class_avg_score': float,
+            'student_test_score': float,
+            'student_assignment_score': float,
+            'num_failed_before': int,
+            'participation_score': float
+        }
 
-        # Check all fields
-        if None in [study_hours, sleep_hours, attendance, class_avg_score,
-                    student_test_score, student_assignment_score,
-                    num_failed_before, participation_score]:
-            return jsonify({'success': False, 'message': 'Missing fields.'}), 400
-        
-        # Check cache first
-        cache_key = generate_prediction_cache_key(data)
+        inputs = {}
+        for key, cast in required.items():
+            if key not in data:
+                return jsonify({'success': False, 'message': f'Missing field: {key}'}), 400
+            try:
+                # convert and store
+                inputs[key] = cast(data[key])
+            except (ValueError, TypeError):
+                return jsonify({'success': False, 'message': f'Invalid type for {key}'}), 400
+
+        # simple range checks (example)
+        if not (0 <= inputs['attendance'] <= 100):
+            return jsonify({'success': False, 'message': 'attendance must be 0-100'}), 400
+
+        cache_key = generate_prediction_cache_key(inputs)
         cached_result = cache.get(cache_key)
-        if cached_result:
-            print(f"Cache hit for pass prediction with inputs: {data}")
+        if cached_result is not None:
+            logging.info("Cache hit for pass prediction")
             return jsonify(cached_result)
 
-        # Use the simple predictor (replaces ML model)
-        user_input = [[study_hours, sleep_hours, attendance, class_avg_score,
-                       student_test_score, student_assignment_score,
-                       num_failed_before, participation_score]]
+        user_input = [[
+            inputs['study_hours'],
+            inputs['sleep_hours'],
+            inputs['attendance'],
+            inputs['class_avg_score'],
+            inputs['student_test_score'],
+            inputs['student_assignment_score'],
+            inputs['num_failed_before'],
+            inputs['participation_score']
+        ]]
 
         predictions, probabilities = PASS_PREDICTOR.predict(user_input)
-        prediction = predictions[0]
-        probability = probabilities[0]
+        prediction = int(predictions[0])
 
-        # Factors (same as before)
+        # safe handling of probabilities
+        prob_vector = probabilities[0] if hasattr(probabilities, '__len__') else probabilities
+        try:
+            prob_pass = float(prob_vector[1])
+            prob_fail = float(prob_vector[0])
+            confidence = float(prob_vector[prediction])
+        except Exception:
+            # fallback if predict returns single score
+            prob_pass = prob_fail = confidence = 0.0
+
         factors = []
-        if study_hours >= 6: factors.append("Good study hours")
-        if attendance >= 75: factors.append("High attendance")
-        if student_test_score >= 70: factors.append("Good test score")
-        if student_assignment_score >= 70: factors.append("Strong assignment score")
-        if participation_score >= 6: factors.append("Active participation")
-        if num_failed_before > 0: factors.append("Past failures may affect result")
+        if inputs['study_hours'] >= 6: factors.append("Good study hours")
+        if inputs['attendance'] >= 75: factors.append("High attendance")
+        if inputs['student_test_score'] >= 70: factors.append("Good test score")
+        if inputs['student_assignment_score'] >= 70: factors.append("Strong assignment score")
+        if inputs['participation_score'] >= 6: factors.append("Active participation")
+        if inputs['num_failed_before'] > 0: factors.append("Past failures may affect result")
 
         result = {
             'success': True,
-            'prediction': int(prediction),
+            'prediction': prediction,
             'label': 'Pass' if prediction == 1 else 'Fail',
-            'confidence': round(float(probability[prediction]) * 100, 2),
-            'prob_pass': round(float(probability[1]) * 100, 2),
-            'prob_fail': round(float(probability[0]) * 100, 2),
+            'confidence': round(confidence * 100, 2),
+            'prob_pass': round(prob_pass * 100, 2),
+            'prob_fail': round(prob_fail * 100, 2),
             'factors': factors,
             'model_accuracy': round(PASS_MODEL_ACC * 100, 2),
             'ml_metrics': {
@@ -871,25 +897,24 @@ def api_pass_predict():
                 'feature_importance': {
                     'study_hours': 0.25,
                     'attendance': 0.20,
-                    'test_score': 0.18,
-                    'assignment_score': 0.15,
-                    'participation': 0.12,
+                    'student_test_score': 0.18,
+                    'student_assignment_score': 0.15,
+                    'participation_score': 0.12,
                     'sleep_hours': 0.08,
-                    'class_avg': 0.02
+                    'class_avg_score': 0.02
                 },
                 'model_version': '2.1.0'
             }
         }
-        
-        # Cache the result for future requests
-        cache.set(cache_key, result, timeout=1800)  # Cache for 30 minutes
-        print(f"Cached pass prediction result for inputs: {data}")
-        
+
+        cache.set(cache_key, result, timeout=1800)
+        logging.info("Cached pass prediction result")
         return jsonify(result)
 
     except Exception as e:
-        print("Error:", e)
+        logging.exception("Error in pass predict")
         return jsonify({'success': False, 'message': 'Server error'}), 500
+
 
 # Error handlers
 @app.errorhandler(404)

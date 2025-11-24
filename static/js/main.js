@@ -866,19 +866,6 @@
           practicalSkills: 65,
           theoreticalKnowledge: 70,
           problemSolving: 55
-        },
-        'AI/ML': {
-          icon: 'fas fa-brain',
-          description: 'Machine learning and artificial intelligence with basic understanding of algorithms and model development.',
-          level: 'below-average',
-          levelText: 'Novice',
-          experienceLevel: '3+ Months',
-          successRate: '45%',
-          projectsUsed: 'ML Projects',
-          successPercentage: 45,
-          practicalSkills: 50,
-          theoreticalKnowledge: 60,
-          problemSolving: 40
         }
       };
 
