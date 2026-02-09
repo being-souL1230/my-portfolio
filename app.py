@@ -70,7 +70,6 @@ class SimpleCache:
 # Initialize simple cache
 cache = SimpleCache()
 
-# Helper function to generate cache key for text analysis
 def generate_text_cache_key(text):
     """Generate a unique cache key for text analysis"""
     return f"mood_analysis:{hashlib.md5(text.encode('utf-8')).hexdigest()}"

@@ -1,4 +1,7 @@
-    document.addEventListener('DOMContentLoaded', function() {
+﻿    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize skill analysis
+      setupSkillAnalysis();
+      
       // DOM Elements
       const elements = {
         contactModal: document.querySelector('.contact-modal'),
@@ -757,7 +760,7 @@
           description: 'Core web technologies for frontend development. I have strong expertise in creating responsive, interactive, and modern web interfaces.',
           level: 'very-good',
           levelText: 'Advanced',
-          experienceLevel: '2+ Months',
+          experienceLevel: '1+ year',
           successRate: '100%',
           projectsUsed: 'All Web Projects',
           successPercentage: 100,
@@ -783,7 +786,7 @@
           description: 'My primary programming language with good understanding of memory management and system programming concepts.',
           level: 'good',
           levelText: 'Competent',
-          experienceLevel: '1 Year',
+          experienceLevel: '2+ Years',
           successRate: '78%',
           projectsUsed: 'System Projects',
           successPercentage: 78,
@@ -925,14 +928,117 @@
       }
 
       // Setup skill analysis for home section skills
+      // Skill learning journey data
+      const skillLearningData = {
+        'HTML/CSS/JS': {
+          learningJourney: [
+            'Started with basic HTML structure and CSS styling',
+            'Learned responsive design and CSS frameworks (Bootstrap, Tailwind)',
+            'Mastered DOM manipulation and event handling in JavaScript',
+            'Explored modern ES6+ features and async/await'
+          ],
+          resources: [
+            'MDN Web Docs',
+            'freeCodeCamp',
+            'YouTube tutorials',
+            'Personal projects'
+          ],
+          projects: [
+            'Portfolio Website (this site!)',
+            'E-commerce frontend',
+            'Interactive web applications',
+            'Responsive landing pages'
+          ]
+        },
+        'Python': {
+          learningJourney: [
+            'Started with basic syntax and data structures',
+            'Learned OOP concepts and design patterns',
+            'Explored web frameworks (Flask, Django)',
+            'Worked with data analysis (Pandas, NumPy)'
+          ],
+          resources: [
+            'Python official documentation',
+            'Real Python tutorials',
+            'LeetCode problems',
+            'Open-source contributions'
+          ],
+          projects: [
+            'LeetCode Platform',
+            'Mood Detector',
+            'Automation scripts',
+            'Backend APIs'
+          ]
+        },
+        'C/C++': {
+          learningJourney: [
+            'Learned basic syntax and memory management',
+            'Studied data structures and algorithms',
+            'Worked on performance optimization',
+            'Explored system programming'
+          ],
+          resources: [
+            'GeeksforGeeks',
+            'Competitive programming',
+            'University coursework',
+            'Open-source projects'
+          ],
+          projects: [
+            'Data structure implementations',
+            'Algorithm visualizations',
+            'System utilities',
+            'Performance-critical applications'
+          ]
+        },
+        'Java': {
+          learningJourney: [
+            'Learned core Java concepts',
+            'Mastered OOP principles',
+            'Explored Spring framework',
+            'Worked on enterprise applications'
+          ],
+          resources: [
+            'Head First Java',
+            'Java documentation',
+            'Coding challenges',
+            'Open-source contributions'
+          ],
+          projects: [
+            'Desktop applications',
+            'RESTful services',
+            'Android apps',
+            'Enterprise solutions'
+          ]
+        }
+      };
+
+      
+
       function setupSkillAnalysis() {
+        console.log('Setting up skill analysis...');
+        // Add event delegation for skill tags
         document.addEventListener('click', (e) => {
-          if (e.target.classList.contains('skill-tag')) {
-            const skillName = e.target.textContent;
+          console.log('Click event detected on:', e.target);
+          
+          // Check if the clicked element or any of its parents has the skill-tag class
+          let skillElement = e.target;
+          while (skillElement && !skillElement.classList?.contains('skill-tag') && skillElement !== document.body) {
+            skillElement = skillElement.parentElement;
+          }
+          
+          if (skillElement && skillElement.classList.contains('skill-tag')) {
+            console.log('Skill tag clicked:', skillElement);
+            const skillName = skillElement.getAttribute('data-skill');
+            console.log('Skill name from data attribute:', skillName);
+            
             const skillInfo = skillAnalysisData[skillName];
+            console.log('Skill info from data:', skillInfo);
             
             if (skillInfo) {
+              console.log('Showing skill analysis for:', skillName);
               showSkillAnalysis(skillName, skillInfo);
+            } else {
+              console.log('No skill info found for:', skillName);
             }
           }
         });
@@ -1436,6 +1542,8 @@
 
   // Start loop
   setInterval(loopTextChange, 3000);
+
+
 
 
 

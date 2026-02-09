@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rishab | Full Stack Web Developer</title>
+  <title>Rishab | Backend Web Developer</title>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='rishab.png') }}">
   <!-- Preload critical resources -->
   <!-- Preload critical resources for faster page load -->
@@ -265,7 +265,7 @@
       <div class="home-content">
         <h1>Crafting digital <span id="changer">experiences</span></h1>
     
-        <p>I'm Rishab, a passionate (for the description) Full Stack Developer with 1 year of experience building modern web applications (Failed 10 times, but still). I specialize in Python-based backend development with Flask & Django, while creating responsive frontends with HTML/CSS/JavaScript. My expertise extends to database design using MySQL/MongoDB(Used MongoDB only one time till now, but need to show). I actually don't know much, but I'll make sure that I can answer your question even if I don't know anything about the question you ask, spitting random stuff like pointing to Twin Towers in 2025.</p>
+        <p>I'm Rishab, a passionate (for the description) Backend Developer with 1 year of experience building modern web applications (Failed 10 times, but still). I specialize in Python-based backend development with Flask & Django, while creating responsive frontends with HTML/CSS/JavaScript. My expertise extends to database design using MySQL/MongoDB(Used MongoDB only one time till now, but need to show). I actually don't know much, but I'll make sure that I can answer your question even if I don't know anything about the question you ask, spitting random stuff like pointing to Twin Towers in 2025.</p>
         
         <div class="expertise-highlights">
           <div class="highlight-item" data-expertise="fullstack">
@@ -274,7 +274,7 @@
               <div class="icon-glow"></div>
             </div>
             <div class="highlight-content">
-              <span class="highlight-title">Full Stack Development</span>
+              <span class="highlight-title">Backend Development</span>
               <div class="highlight-progress">
                 <div class="progress-fill" style="width: 95%"></div>
               </div>
@@ -353,18 +353,18 @@
           <span class="skill-tag" style="cursor: pointer;" data-skill="MongoDB" data-level="Beginner" data-experience="6 months">MongoDB</span>
         </div>
         
-        <div class="cta-buttons">
-          <a href="{{ url_for('blogs') }}" class="btn btn-primary">
-            <i class="fas fa-book btn-icon"></i> Blog
-          </a>
+          <div class="cta-buttons">
+            <a href="{{ url_for('blogs') }}" class="btn btn-primary">
+              <i class="fas fa-book btn-icon"></i> Blog
+            </a>
           <a href="{{ url_for('resume') }}" class="btn btn-primary">
             <i class="fas fa-file-alt btn-icon"></i> Resume
           </a>
           <a href="{{ url_for('certificates') }}" class="btn btn-primary">
-            <i class="fas fa-award btn-icon"></i> Certificates
+            <i class="fas fa-award btn-icon"></i> Certificate
           </a>
           <a href="#" class="btn btn-outline contact-trigger">
-            <i class="fas fa-paper-plane btn-icon"></i> Contact Me
+            <i class="fas fa-paper-plane btn-icon"></i> Contact
           </a>
         </div>
       </div>
@@ -676,7 +676,7 @@
           for (let j = i + 1; j < particles.length; j++) {
             const dx = particles[i].x - particles[j].x;
             const dy = particles[i].y - particles[j].y;
-            const distance = dx * dx + dy * dy; // Skip sqrt for performance
+            const distance = dx * dx + dy * dy; 
             
             if (distance < 10000) { // 100^2
               ctx.strokeStyle = `rgba(59, 130, 246, ${1 - distance/10000})`;
@@ -691,10 +691,11 @@
         
         requestAnimationFrame(animate);
       }
-      // Start animation
+      // animation
       requestAnimationFrame(animate);
       console.log('Optimized particles initialized');
     }
   </script>
 </body>
 </html>
+
