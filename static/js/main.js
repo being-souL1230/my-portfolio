@@ -807,19 +807,6 @@
           theoreticalKnowledge: 75,
           problemSolving: 60
         },
-        'ASP.NET': {
-          icon: 'fas fa-code',
-          description: 'Microsoft web framework for building dynamic web applications and services. I have built web applications using ASP.NET with good understanding of the framework.',
-          level: 'good',
-          levelText: 'Proficient',
-          experienceLevel: '2+ Months',
-          successRate: '70%',
-          projectsUsed: 'Web Applications',
-          successPercentage: 70,
-          practicalSkills: 65,
-          theoreticalKnowledge: 85,
-          problemSolving: 60
-        },
         'Flask': {
           icon: 'fas fa-flask',
           description: 'Lightweight Python web framework with extensive experience in building REST APIs and web applications.',

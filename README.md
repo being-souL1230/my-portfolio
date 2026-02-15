@@ -139,7 +139,7 @@ portfolio_website/
 │   └── test_ml.py                # ML model tests
 ├── static/                       # Static assets
 │   ├── css/                      # Stylesheets
-│   │   ├── main.css             # Main stylesheet (72KB)
+│   │   ├── main_blue_theme.css  # Main stylesheet
 │   │   ├── components.css       # Component styles
 │   │   ├── sections.css         # Section-specific styles
 │   │   ├── project-card.css     # Project card styles
@@ -331,7 +331,7 @@ pytest --cov=app tests/
 
 - **Total Files**: 50+ files
 - **Lines of Code**: 20,000+ lines
-- **CSS Size**: 72KB (main.css)
+- **CSS Theme**: main_blue_theme.css
 - **JavaScript Size**: 47KB (main.js)
 - **Python Dependencies**: 200+ packages
 - **Interactive Demos**: 2 AI/ML applications

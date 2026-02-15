@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='rishab.png') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main_blue_theme.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
   <script>
     // Inherit theme from parent window or localStorage
@@ -31,9 +31,9 @@
       }
       
       // Apply theme
-      setTheme(theme);
+      setTheme();
       
-      function setTheme(theme) {
+      function setTheme() {
         // Remove any existing theme styles
         const oldLink = document.getElementById('theme-style');
         if (oldLink) {
@@ -44,7 +44,7 @@
         const link = document.createElement('link');
         link.id = 'theme-style';
         link.rel = 'stylesheet';
-        link.href = `/static/css/main${theme === 'blue' ? '_blue_theme' : ''}.css`;
+        link.href = '/static/css/main_blue_theme.css';
         document.head.appendChild(link);
       }
     });

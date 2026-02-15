@@ -455,30 +455,44 @@
         font-weight: 400;
         width: 100%;
       }
+
+      .home-content .hero-intro {
+        font-family: "Manrope", "Inter", "Segoe UI", Tahoma, sans-serif;
+        font-size: 1.02rem;
+        line-height: 1.85;
+        letter-spacing: 0.01em;
+        color: #e8eef8;
+        text-shadow: 0 1px 10px rgba(15, 23, 42, 0.22);
+        margin-bottom: 28px;
+        text-wrap: pretty;
+      }
   
       .expertise-highlights {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 24px;
       }
   
       .highlight-item {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 15px;
-        padding: 20px;
+        gap: 10px;
+        padding: 10px 14px;
         background: linear-gradient(135deg, 
-          rgba(15, 23, 42, 0.8) 0%, 
-          rgba(30, 41, 59, 0.6) 100%);
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        border-radius: 16px;
+          rgba(15, 23, 42, 0.88) 0%, 
+          rgba(30, 41, 59, 0.76) 100%);
+        border: 1px solid rgba(59, 130, 246, 0.28);
+        border-radius: 999px;
         color: var(--light);
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
         cursor: pointer;
         backdrop-filter: blur(12px) saturate(150%);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 6px 16px rgba(15, 23, 42, 0.25);
       }
   
       .highlight-item::before {
@@ -504,18 +518,18 @@
         background: linear-gradient(135deg, 
           rgba(15, 23, 42, 0.9) 0%, 
           rgba(30, 41, 59, 0.8) 100%);
-        transform: translateY(-5px) scale(1.02);
+        transform: translateY(-1px);
         box-shadow: 
-          0 12px 30px rgba(0, 0, 0, 0.3),
-          0 8px 20px rgba(59, 130, 246, 0.2);
+          0 8px 18px rgba(0, 0, 0, 0.25),
+          0 5px 12px rgba(59, 130, 246, 0.2);
         border-color: rgba(59, 130, 246, 0.4);
       }
   
       .highlight-icon {
         position: relative;
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
         background: linear-gradient(135deg, var(--primary), var(--primary-dark));
         display: flex;
         align-items: center;
@@ -524,7 +538,7 @@
       }
   
       .highlight-icon i {
-        font-size: 1.2em;
+        font-size: 0.82em;
         color: white;
         z-index: 2;
         position: relative;
@@ -548,17 +562,17 @@
       }
   
       .highlight-content {
-        flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 3px;
       }
   
       .highlight-title {
-        font-size: 1em;
+        font-size: 0.86em;
         font-weight: 700;
         color: var(--light);
         margin: 0;
+        line-height: 1.2;
       }
   
       .highlight-progress {
@@ -590,9 +604,11 @@
       }
   
       .highlight-subtitle {
-        font-size: 0.8em;
+        font-size: 0.74em;
         color: var(--gray-light);
         font-weight: 500;
+        line-height: 1.2;
+        opacity: 0.95;
       }
   
       .highlight-stats {
@@ -667,7 +683,7 @@
         display: flex;
         gap: 15px;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: flex-start;
         margin-top: 2rem;
         pointer-events: auto;
       }
@@ -1869,21 +1885,23 @@
   
       /* Email Dialog Styling */
       .email-dialog-content {
-        background: var(--dark);
-        border-radius: 16px;
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.92) 100%);
+        border-radius: 14px;
         width: 90%;
-        max-width: 500px;
-        padding: 30px;
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        transform: translateY(20px);
+        max-width: 390px;
+        padding: 20px 20px 18px;
+        border: 1px solid rgba(96, 165, 250, 0.32);
+        box-shadow:
+          0 20px 40px rgba(2, 6, 23, 0.4),
+          0 0 0 1px rgba(59, 130, 246, 0.18) inset;
+        transform: translateY(14px) scale(0.98);
         transition: all 0.3s ease;
         position: relative;
         box-sizing: border-box;
       }
-  
+
       .email-dialog.active .email-dialog-content {
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
       }
   
       /* Ensure email dialog is visible when active */
@@ -1919,11 +1937,12 @@
       }
   
       .email-dialog h3 {
-        font-size: 1.8em;
-        margin-bottom: 25px;
+        font-size: 1.38em;
+        margin-bottom: 14px;
         font-weight: 700;
         text-align: center;
         color: var(--light);
+        letter-spacing: 0.02em;
       }
   
       .email-dialog h3 span {
@@ -1933,26 +1952,26 @@
       .email-form {
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 11px;
       }
-  
+
       .email-form input,
       .email-form textarea {
-        padding: 12px 15px;
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        border-radius: 8px;
-        background: rgba(59, 130, 246, 0.05);
+        padding: 10px 12px;
+        border: 1px solid rgba(96, 165, 250, 0.24);
+        border-radius: 10px;
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.62) 0%, rgba(15, 23, 42, 0.52) 100%);
         color: var(--light);
-        font-size: 0.95em;
+        font-size: 0.9em;
         transition: all 0.3s ease;
       }
-  
+
       .email-form input:focus,
       .email-form textarea:focus {
         outline: none;
-        border-color: var(--primary);
-        background: rgba(59, 130, 246, 0.1);
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        border-color: rgba(147, 197, 253, 0.52);
+        background: linear-gradient(145deg, rgba(30, 58, 138, 0.34) 0%, rgba(30, 41, 59, 0.74) 100%);
+        box-shadow: 0 8px 18px rgba(30, 64, 175, 0.2);
       }
   
       .email-form input::placeholder,
@@ -1963,6 +1982,39 @@
       .email-form .btn {
         align-self: flex-start;
         margin-top: 10px;
+        padding: 9px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(96, 165, 250, 0.55);
+        background: linear-gradient(135deg, rgba(30, 58, 138, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%);
+        color: #f8fbff;
+        font-size: 0.86em;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: 0.02em;
+        box-shadow:
+          0 8px 18px rgba(30, 64, 175, 0.28),
+          0 0 0 1px rgba(191, 219, 254, 0.16) inset;
+        transition: all 0.25s ease;
+      }
+
+      .email-form .btn:hover,
+      .email-form .btn:focus {
+        background: linear-gradient(135deg, rgba(30, 64, 175, 1) 0%, rgba(59, 130, 246, 1) 100%);
+        border-color: rgba(191, 219, 254, 0.82);
+        transform: translateY(-1px);
+        box-shadow:
+          0 10px 22px rgba(30, 64, 175, 0.34),
+          0 0 0 2px rgba(147, 197, 253, 0.2) inset;
+      }
+
+      .email-form .btn i {
+        font-size: 0.92em;
+        margin-right: 6px;
+      }
+
+      .email-form .btn:hover i,
+      .email-form .btn:focus i {
+        transform: translateX(1px);
       }
   
       .contact-modal.active, .modal-overlay.active {
@@ -1992,10 +2044,26 @@
         padding-right: 20px;
         margin-right: -20px;
       }
-  
+
+      .contact-modal-content {
+        max-width: 390px;
+        padding: 20px 20px 18px;
+        border-radius: 14px;
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.92) 100%);
+        border: 1px solid rgba(96, 165, 250, 0.32);
+        box-shadow:
+          0 20px 40px rgba(2, 6, 23, 0.4),
+          0 0 0 1px rgba(59, 130, 246, 0.18) inset;
+        transform: translateY(14px) scale(0.98);
+      }
+
       .contact-modal.active .contact-modal-content, 
       .modal-overlay.active .modal {
         transform: translateY(0);
+      }
+
+      .contact-modal.active .contact-modal-content {
+        transform: translateY(0) scale(1);
       }
   
       .contact-modal-close, .modal-close {
@@ -2025,11 +2093,12 @@
       }
   
       .contact-modal h3 {
-        font-size: 1.8em;
-        margin-bottom: 20px;
+        font-size: 1.38em;
+        margin-bottom: 14px;
         font-weight: 700;
         text-align: center;
         color: var(--light);
+        letter-spacing: 0.02em;
       }
   
       .contact-modal h3 span {
@@ -2039,42 +2108,43 @@
       .contact-links {
         display: flex;
         flex-direction: column;
-        gap: 12px;
-        margin-bottom: 20px;
+        gap: 9px;
+        margin-bottom: 8px;
       }
-  
+
       .contact-link {
         display: flex;
         align-items: center;
-        gap: 12px;
-        color: var(--gray);
-        font-size: 0.95em;
-        font-weight: 500;
+        gap: 10px;
+        color: rgba(226, 232, 240, 0.9);
+        font-size: 0.9em;
+        font-weight: 600;
         text-decoration: none;
         transition: all 0.3s ease;
-        padding: 10px;
-        border-radius: 8px;
-        background: rgba(59, 130, 246, 0.05);
-        border: 1px solid rgba(59, 130, 246, 0.1);
+        padding: 9px 11px;
+        border-radius: 10px;
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.62) 0%, rgba(15, 23, 42, 0.52) 100%);
+        border: 1px solid rgba(96, 165, 250, 0.2);
       }
-  
+
       .contact-link:hover {
-        background: rgba(59, 130, 246, 0.1);
+        background: linear-gradient(145deg, rgba(30, 58, 138, 0.45) 0%, rgba(30, 41, 59, 0.75) 100%);
         color: var(--light);
-        transform: translateX(5px);
-        border-color: var(--primary);
+        transform: translateX(3px);
+        border-color: rgba(147, 197, 253, 0.52);
+        box-shadow: 0 8px 18px rgba(30, 64, 175, 0.22);
       }
-  
+
       .contact-link i {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         background: var(--primary);
         color: var(--light);
-        font-size: 0.9em;
+        font-size: 0.82em;
         transition: all 0.3s ease;
       }
   
@@ -2309,35 +2379,40 @@
             font-size: 1.8em;
           }
   
-          #home h1 {
-            font-size: 2em;
-          }
+        #home h1 {
+          font-size: 2em;
+        }
+
+        .home-content .hero-intro {
+          font-size: 0.92rem;
+          line-height: 1.75;
+          margin-bottom: 20px;
+        }
   
                 .expertise-highlights {
-          grid-template-columns: 1fr;
-          gap: 15px;
+          gap: 10px;
         }
-  
+
         .highlight-item {
-          padding: 15px;
-          gap: 12px;
+          padding: 8px 11px;
+          gap: 8px;
         }
-  
+
         .highlight-icon {
-          width: 45px;
-          height: 45px;
+          width: 24px;
+          height: 24px;
         }
-  
+
         .highlight-icon i {
-          font-size: 1.1em;
+          font-size: 0.72em;
         }
-  
+
         .highlight-title {
-          font-size: 0.95em;
+          font-size: 0.78em;
         }
-  
+
         .highlight-subtitle {
-          font-size: 0.75em;
+          font-size: 0.67em;
         }
   
         .stat-number {
@@ -2708,21 +2783,21 @@
       }
   
       /* --- CTA BUTTON ANIMATIONS (Polished) --- */
-        .cta-buttons .btn {
-          position: relative;
-          overflow: hidden;
-          display: inline-flex;
-          align-items: center;
-          gap: 0.55em;
-          border-radius: 999px; /* pill shape */
-          pointer-events: auto;
-          padding: 0.55em 1.35em;
-        font-size: 1em;
-        font-weight: 600;
-        border: 1.5px solid transparent;
-        min-width: 0;
-        min-height: 0;
-        box-shadow:
+      .cta-buttons .btn {
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55em;
+        border-radius: 999px; /* pill shape */
+        pointer-events: auto;
+        padding: 0.55em 1.35em;
+      font-size: 1em;
+      font-weight: 600;
+      border: 1.5px solid transparent;
+      min-width: 0;
+      min-height: 0;
+      box-shadow:
           0 2px 8px rgba(59,130,246,0.10),
           0 0 0 1.5px rgba(59,130,246,0.10) inset;
         background: none;
